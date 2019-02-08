@@ -1,0 +1,89 @@
+---
+- hosts: all
+  sudo: yes
+  tasks:
+    - name: Linking binaries
+      shell: ln -s $_script_dir/../../../bin/$LOGSTASH_PACKAGE $_script_dir/$LOGSTASH_PACKAGE
+     
+    - name: Create the directories
+      file:
+        path: /opt/logstash/{{item}}
+        state: directory
+        mode: 0755
+      with_items:
+      - /logs
+      - /certs
+      - /private
+      - /data
+
+    - name: Copy the LogStash binary
+      copy: 
+        src: /etc/ansible/???
+        dest: /tmp/logstash/
+       
+    - name: Install LogStash
+      shell: rpm -ivh /tmp/logstash/???
+
+    - name: Delete the binary
+      shell: rm -r /tmp/logstash/
+      
+    - name: Copy logstash from etc to opt/logstash/
+      shell: cp -r /etc/logstash/* /opt/logstash/
+      
+    - name: Delete logstash from etc
+      shell: rm -rf /etc/logstash/*
+      
+    - name: Copy the certificates
+      copy:
+        src: /etc/ansible/logstash/certs
+        dest: /tmp/certs/
+        
+    - name: Install the certificates
+      shell: |
+      sudo cp /tmp/certs/acm-elasticsearch-server-client.key.pkcs8 /opt/logstash/private/
+      sudo cp /tmp/certs/acm-elasticsearch-server-client.cert.pem /opt/logstash/certs/
+      sudo cp /tmp/certs/ca-chain.cert.pem /opt/logstash/certs/
+      sudo cp /tmp/certs/ca-chain.cert.pem /etc/pki/ca-trust/source/anchors/
+
+    - name: Create trustStore jks file, needed by logstash
+      shell: |
+        yes |  keytool -import -file $_script_dir/certs/ca-chain.cert.pem -alias caChain -storepass $KEY_PASS -keystore /opt/logstash/certs/logstashTrustStore.jks
+        update-ca-trust force-enable
+        update-ca-trust extract
+        
+    - name: Change the ownership on all files in /opt/logstash/
+      file: 
+        dest: /opt/logstash/
+        owner: logstash
+        group: logstash
+        mode: 0755
+        recurse: yes
+        
+    - name: Update logstash.yml file
+      shell: |
+        sed -i 's/LS_SETTINGS_DIR=\/etc\/logstash/LS_SETTINGS_DIR=\/opt\/logstash/g' /opt/logstash/startup.options
+        sed -i 's/path.config: \/etc\/logstash\/conf.d/path.config: \/opt\/logstash\/conf.d/g' /opt/logstash/logstash.yml
+        sed -i 's/path.logs: \/var\/log\/logstash/path.logs: \/opt\/logstash\/log\//g' /opt/logstash/logstash.yml
+        sed -i 's/path.data: \/var\/lib\/logstash/path.data: \/opt\/logstash\/data\//g' /opt/logstash/logstash.yml
+        echo "xpack.monitoring.elasticsearch.username: logstash_system" >> logstash.yml
+        echo "xpack.monitoring.elasticsearch.password: logstashpass" >> logstash.yml
+        $LS_HOME/bin/system-install $LS_START_UP_OPTIONS_PATH/startup.options 
+        sed -i 's/KILL_ON_STOP_TIMEOUT=0/KILL_ON_STOP_TIMEOUT=1/g' /etc/init.d/logstash
+        sed -i "s|\$LOGSTASH_MYSQ_PORT|$LOGSTASH_MYSQL_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$LOGSTASH_FREVVO_PORT|$LOGSTASH_FREVVO_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$LOGSTASH_SNOWBOUND_PORT|$LOGSTASH_SNOWBOUND_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$LOGSTASH_PENTAHO_PORT|$LOGSTASH_PENTAHO_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$ELK_PORT|$ELK_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$LOGSTASH_ALF_PORT|$LOGSTASH_ALF_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$ES_PORT|$ES_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_99"
+
+    - name: Adding LogStash service to autostart
+      service: name=logstash enabled=yes
+     
+    - name: Adding LogStash to startup.sh & shutdown.sh scripts
+      shell: |
+        echo '/etc/init.d/logstash start' >> /usr/local/bin/startup.sh
+        echo '/etc/init.d/logstash stop' >> /usr/local/bin/shutdown.sh
+        
+    - name: Copy logstash config files in te logstast cong.d folder
+      shell: sudo cp tmp/logstash_configs/*.conf $LOGSTASH_CONF_DIR/
