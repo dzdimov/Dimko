@@ -65,7 +65,7 @@
     - name: Install the certifites 2
       copy:
         src: /tmp/certs/acm-elasticsearch-server-client.cert.pem
-        dest:/opt/logstash/certs/
+        dest: /opt/logstash/certs/
         remote_src: yes
         
     - name: Install the certificates 3
