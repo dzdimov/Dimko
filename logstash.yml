@@ -2,8 +2,13 @@
 - hosts: all
   sudo: yes
   tasks:
+    - name: Copy the binary
+      copy:
+        src: /etc/ansible/logstash/certs
+        dest: /tmp/logstash/
+        
     - name: Linking binaries
-      shell: ln -s $_script_dir/../../../bin/$LOGSTASH_PACKAGE $_script_dir/$LOGSTASH_PACKAGE
+      shell: ln -s /tmp/../../../bin/$LOGSTASH_PACKAGE tmp/logstash/$LOGSTASH_PACKAGE
      
     - name: Create the directories
       file:
