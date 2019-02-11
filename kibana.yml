@@ -23,7 +23,7 @@
       
     - name: Copy certificates to remote machine
       copy:
-        src: /etc/ansible/kibana/certs/
+        src: /etc/ansible/kibana/src/certs/
         dest: /tmp/certs/
       
     - name: Copying the certificates 1
@@ -50,7 +50,7 @@
         
     - name: Install KIBANA_PACKAGE
       yum:
-        name: kibana-6.6.0-x86_64.rpm
+        name: /tmp/kibana/kibana-6.6.0-x86_64.rpm
         state: present
         
 ##      shell: rpm -ivh /tmp/$KIBANA_PACKAGE
