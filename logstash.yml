@@ -2,13 +2,13 @@
 - hosts: all
   sudo: yes
   tasks:
-    - name: Copy the binary
-      copy:
-        src: /etc/ansible/logstash/certs
-        dest: /tmp/logstash/
+##    - name: Copy the binary
+##      copy:
+##        src: /etc/ansible/logstash/certs/
+##        dest: /tmp/logstash/
         
-    - name: Linking binaries
-      shell: ln -s /tmp/../../../bin/$LOGSTASH_PACKAGE tmp/logstash/$LOGSTASH_PACKAGE
+##    - name: Linking binaries
+##      shell: ln -s /tmp/../../../bin/$LOGSTASH_PACKAGE tmp/logstash/$LOGSTASH_PACKAGE
      
     - name: Create the directories
       file:
@@ -23,12 +23,12 @@
 
     - name: Copy the LogStash binary
       copy: 
-        src: /etc/ansible/???
+        src: /etc/ansible/logstash/logstash-6.6.0.rpm
         dest: /tmp/logstash/
        
     - name: Install LogStash
       yum:
-        name: /tmp/logstash/???
+        name: /tmp/logstash/logstash-6.6.0.rpm
         state: present
 ##      shell: rpm -ivh /tmp/logstash/???
 
@@ -39,21 +39,21 @@
 ##      shell: rm -r /tmp/logstash/
       
     - name: Copy logstash from etc to opt/logstash/
-      copy:
-        src: /etc/logstash/????
-        dest: /tmp/logstast/
-        remote_src: yes
-##      shell: cp -r /etc/logstash/* /opt/logstash/
+##      copy:
+##        src: /etc/logstash/????
+##        dest: /tmp/logstast/
+##        remote_src: yes
+      shell: cp -r /etc/logstash/* /opt/logstash/
       
     - name: Delete logstash from etc
-      file:
-        path: /etc/logstash/???
-        state: absent
-##      shell: rm -rf /etc/logstash/*
+##      file:
+##        path: /etc/logstash/???
+##        state: absent
+      shell: rm -rf /etc/logstash/*
       
     - name: Copy the certificates
       copy:
-        src: /etc/ansible/logstash/certs
+        src: /etc/ansible/logstash/certs/
         dest: /tmp/certs/
         
     - name: Install the certificates
