@@ -24,13 +24,11 @@
       yum:
         name: /tmp/java/jre-8u201-linux-x64.rpm
         state: present
-##      shell: rpm -ivh /tmp/java/jre-8u201-linux-x64.rpm
 
     - name: Delete the java rpm file
       file:
         path: /tmp/java
         state: absent
-##      shell: rm -r /tmp/java
 
     - name: Copy the ElasticSearch binary
       copy:
@@ -41,13 +39,11 @@
       yum:
         name: /tmp/elastic/elasticsearch-6.6.0.rpm
         state: present
-##      command: rpm -ivh /tmp/elastic/elasticsearch-6.6.0.rpm
 
     - name: Delete the ElasticSearch rpm file
       file:
         path: /tmp/elastic
         state: absent
-##      shell: rm -r /tmp/elastic
 
     - name: Change the ownership on all files in /opt/elasticsearch/
       file: 
@@ -83,7 +79,6 @@
 
     - name: Setting permision
       file: dest=/usr/local/bin/escat-index mode=a+x
-##    shell: chmod +x /usr/local/bin/escat-index
 
     - name: Setting node cat script
       shell: |
@@ -91,7 +86,6 @@
 
     - name: Setting permision
       file: dest=/usr/local/bin/escat-node mode=a+x
-##    shell: chmod +x /usr/local/bin/escat-node
 
     - name: copy fix-ownership.sh
       copy:
@@ -106,7 +100,6 @@
         src: /etc/elasticsearch/elasticsearch.yml
         dest: /opt/elasticsearch/conf/elasticsearch.yml.back
         remote_src: yes           
-##      shell: cp /etc/elasticsearch/elasticsearch.yml /opt/elasticsearch/conf/elasticsearch.yml.backup
 
     - name: Setting the port in the ElasticSearch config file  ???
       shell: |
@@ -124,14 +117,12 @@
         src: /etc/elasticsearch/jvm.options
         dest: /opt/elasticsearch/conf
         remote_src: yes
-##      shell: cp /etc/elasticsearch/jvm.options /opt/elasticsearch/conf
 
     - name: Copying ElasticSearch configuration files
       copy:
         src: /etc/elasticsearch/log4j2.properties
         dest: /opt/elasticsearch/conf
         remote_src: yes
-##      shell: cp /etc/elasticsearch/log4j2.properties /opt/elasticsearch/conf
 
     - name: Change the ownership on all files in /opt/elasticsearch/
       file: 
