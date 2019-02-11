@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  sudo: yes
+  become: sudo
   tasks:
 ##    - name: Copy the binary
 ##      copy:
@@ -45,11 +45,11 @@
 ##        remote_src: yes
       shell: cp -r /etc/logstash/* /opt/logstash/
       
-    - name: Delete logstash from etc
+##    - name: Delete logstash from etc
 ##      file:
 ##        path: /etc/logstash/???
 ##        state: absent
-      shell: rm -rf /etc/logstash/*
+##      shell: rm -rf /etc/logstash/*
       
     - name: Copy the certificates
       copy:
@@ -76,7 +76,7 @@
         
     - name: Install the certificates 4
       copy:
-        src: /tmp/certs/ca-chain.cert.pe
+        src: /tmp/certs/ca-chain.cert.pem
         dest: /etc/pki/ca-trust/source/anchors/
         remote_src: yes
         

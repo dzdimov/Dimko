@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  sudo: yes
+  become: sudo
   tasks:
     - name: Create the directory structure
       file:
