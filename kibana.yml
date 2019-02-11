@@ -56,12 +56,12 @@
 ##      shell: rpm -ivh /tmp/$KIBANA_PACKAGE
       
     - name: Copy everything from /usr/share to opt/kibana/
-      copy:
-        src: /usr/share/kibana
-        dest: /opt/kibana
-        remote_src: yes
-        directory_mode: yes
-##      shell: cp -r /usr/share/kibana/* /opt/kibana
+##      copy:
+##        src: /usr/share/kibana
+##        dest: /opt/kibana
+##        remote_src: yes
+##        directory_mode: yes
+      shell: cp -r /usr/share/kibana/* /opt/kibana
       
     - name: Delete the folder
       file:
