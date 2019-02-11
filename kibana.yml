@@ -445,7 +445,8 @@
              }'
              
     - name: Configure logstast to be the default index pattern
-      shell: 'curl -XPUT -H "Content-Type: application/json" -u elastic:elasticpass http://localhost:9200/.kibana/index-pattern/logstash-* -d '{"title" : "logstash-*",  "timeFieldName": "@timestamp"}''
+      shell: 'curl -XPUT -H "Content-Type: application/json" -u elastic:elasticpass http://localhost:9200/.kibana/index-pattern/logstash-* -d 
+             {"title" : "logstash-*",  "timeFieldName": "@timestamp"}'
       
     - name: Stopping Kibana
       service: name=kibana state=stopped
