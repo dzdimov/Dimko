@@ -22,16 +22,29 @@
         dest: /tmp/logstash/
        
     - name: Install LogStash
-      shell: rpm -ivh /tmp/logstash/???
+      yum:
+        name: /tmp/logstash/???
+        state: present
+##      shell: rpm -ivh /tmp/logstash/???
 
     - name: Delete the binary
-      shell: rm -r /tmp/logstash/
+      file:
+        path: /tmp/logstash/
+        state: absent
+##      shell: rm -r /tmp/logstash/
       
     - name: Copy logstash from etc to opt/logstash/
-      shell: cp -r /etc/logstash/* /opt/logstash/
+      copy:
+        src: /etc/logstash/????
+        dest: /tmp/logstast/
+        remote_src: yes
+##      shell: cp -r /etc/logstash/* /opt/logstash/
       
     - name: Delete logstash from etc
-      shell: rm -rf /etc/logstash/*
+      file:
+        path: /etc/logstash/???
+        state: absent
+##      shell: rm -rf /etc/logstash/*
       
     - name: Copy the certificates
       copy:
@@ -39,11 +52,34 @@
         dest: /tmp/certs/
         
     - name: Install the certificates
-      shell: |
-      sudo cp /tmp/certs/acm-elasticsearch-server-client.key.pkcs8 /opt/logstash/private/
-      sudo cp /tmp/certs/acm-elasticsearch-server-client.cert.pem /opt/logstash/certs/
-      sudo cp /tmp/certs/ca-chain.cert.pem /opt/logstash/certs/
-      sudo cp /tmp/certs/ca-chain.cert.pem /etc/pki/ca-trust/source/anchors/
+      copy:
+        src: /tmp/certs/acm-elasticsearch-server-client.key.pkcs8
+        dest: /opt/logstash/private/
+        remote_src: yes
+        
+    - name: Install the certifites 2
+      copy:
+        src: /tmp/certs/acm-elasticsearch-server-client.cert.pem
+        dest:/opt/logstash/certs/
+        remote_src: yes
+        
+    - name: Install the certificates 3
+      copy:
+        src: /tmp/certs/ca-chain.cert.pem
+        dest: /opt/logstash/certs/
+        remote_src: yes
+        
+    - name: Install the certificates 4
+      copy:
+        src: /tmp/certs/ca-chain.cert.pe
+        dest: /etc/pki/ca-trust/source/anchors/
+        remote_src: yes
+        
+##      shell: |
+##      sudo cp /tmp/certs/acm-elasticsearch-server-client.key.pkcs8 /opt/logstash/private/
+##      sudo cp /tmp/certs/acm-elasticsearch-server-client.cert.pem /opt/logstash/certs/
+##      sudo cp /tmp/certs/ca-chain.cert.pem /opt/logstash/certs/
+##      sudo cp /tmp/certs/ca-chain.cert.pem /etc/pki/ca-trust/source/anchors/
 
     - name: Create trustStore jks file, needed by logstash
       shell: |
@@ -86,4 +122,8 @@
         echo '/etc/init.d/logstash stop' >> /usr/local/bin/shutdown.sh
         
     - name: Copy logstash config files in te logstast cong.d folder
-      shell: sudo cp tmp/logstash_configs/*.conf $LOGSTASH_CONF_DIR/
+      copy:
+        src: /tmp/logstash_configs/*.conf
+        dest: 
+        remote_src: yes
+##      shell: sudo cp tmp/logstash_configs/*.conf $LOGSTASH_CONF_DIR/
