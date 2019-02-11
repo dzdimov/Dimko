@@ -2,8 +2,13 @@
 - hosts: all
   sudo: yes
   tasks:
-    - name: Link binaries
-      shell: ln -s /tmp/../../../bin/$KIBANA_PACKAGE /tmp/$KIBANA_PACKAGE
+    - name: Copy the binary
+      copy:
+        src: /etc/ansible/kibana/kibana-6.6.0-x86_64.rpm
+        dest: /tmp/kibana/
+        
+##    - name: Link binaries
+##      shell: ln -s /tmp/../../../bin/$KIBANA_PACKAGE /tmp/$KIBANA_PACKAGE
   
     - name: Create the directories
       file:
@@ -45,7 +50,7 @@
         
     - name: Install KIBANA_PACKAGE
       yum:
-        name: ?????
+        name: kibana-6.6.0-x86_64.rpm
         state: present
         
 ##      shell: rpm -ivh /tmp/$KIBANA_PACKAGE
@@ -88,21 +93,30 @@
       
     - name: Copying Kibana configuration file
       copy:
-        src: /etc/ansible/kibana.yml
+        src: /etc/ansible/kibana/src/kibana.yml
         dest: /opt/kibana/config/
-        remote_src: yes
+        remote_src: no
         
-    - name: Delete /etc/kibana/kibana   ??????
-      file:   ?????
-        path: /etc/kibana   ?????
-        state: absent   ?????
+    - name: Delete /etc/kibana/kibana  ??????
+      file:
+        path: /etc/kibana
+        state: absent
         directory_mode: yes
-      shell: rm -rf /etc/kibana
+##      shell: rm -rf /etc/kibana
       
-    - name: Starting Elasticsearch
-      shell: |
-        rm -rf /var/lock/subsys/elasticsearch
-        service elasticsearch start
+    - name: Delete Elasticsearch var/lock/subsys
+      file:
+        path: /var/lock/subsys/elasticsearch
+        state: absent
+        directory_mode: yes
+        
+    - name: start Elasticsearch
+      service:
+        name=elasticsearch
+        state=started        
+##      shell: |
+##        rm -rf /var/lock/subsys/elasticsearch
+##        service elasticsearch start
     
     - name: Wait for 90 seconds
       wait_for: time_out=90
@@ -110,8 +124,8 @@
       
     - name: Start Kibana
       service:
-        name: "kibana"
-        state: started
+        name=kibana
+        state=started
         
     - name: Wait for 60 seconds
       wait_for: time_out=60
