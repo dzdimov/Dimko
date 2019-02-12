@@ -100,6 +100,11 @@
         mode: 0755
         recurse: yes
         
+    - name: Copy logstash_configs
+      copy:
+        src: /etc/ansible/logstash/logstash_configs
+        dest: /opt/logstash/
+        
     - name: Update logstash.yml file
       shell: |
         sed -i 's/LS_SETTINGS_DIR=\/etc\/logstash/LS_SETTINGS_DIR=\/opt\/logstash/g' /opt/logstash/startup.options
@@ -108,16 +113,16 @@
         sed -i 's/path.data: \/var\/lib\/logstash/path.data: \/opt\/logstash\/data\//g' /opt/logstash/logstash.yml
         echo "xpack.monitoring.elasticsearch.username: logstash_system" >> logstash.yml
         echo "xpack.monitoring.elasticsearch.password: logstashpass" >> logstash.yml
-    ##    $LS_HOME/bin/system-install $LS_START_UP_OPTIONS_PATH/startup.options 
         sed -i 's/KILL_ON_STOP_TIMEOUT=0/KILL_ON_STOP_TIMEOUT=1/g' /etc/init.d/logstash
-        sed -i "s|\$LOGSTASH_MYSQ_PORT|$LOGSTASH_MYSQL_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$LOGSTASH_FREVVO_PORT|$LOGSTASH_FREVVO_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$LOGSTASH_SNOWBOUND_PORT|$LOGSTASH_SNOWBOUND_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$LOGSTASH_PENTAHO_PORT|$LOGSTASH_PENTAHO_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$ELK_PORT|$ELK_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$LOGSTASH_ALF_PORT|$LOGSTASH_ALF_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$ES_PORT|$ES_PORT|g" "$_script_dir/logstash_configs/$LOGSTASH_CONFIG_FILE_99"
+        sed -i "s|\$LOGSTASH_MYSQ_PORT|$LOGSTASH_MYSQL_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$LOGSTASH_FREVVO_PORT|$LOGSTASH_FREVVO_PORT|g" "$/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$LOGSTASH_SNOWBOUND_PORT|$LOGSTASH_SNOWBOUND_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$LOGSTASH_PENTAHO_PORT|$LOGSTASH_PENTAHO_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$ELK_PORT|$ELK_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$LOGSTASH_ALF_PORT|$LOGSTASH_ALF_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\$ES_PORT|$ES_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_99"
 
+            #    $LS_HOME/bin/system-install $LS_START_UP_OPTIONS_PATH/startup.options 
     - name: Adding LogStash service to autostart
       service: name=logstash enabled=yes
      
