@@ -17,12 +17,13 @@
 
     - name: Copy the JAVA binary
       copy:
+        src: /etc/ansible/{{ lookup('ini', 'JAVA_PACKAGE type=properties file=elastic.properties') }}
         src: /etc/ansible/jre-8u201-linux-x64.rpm
         dest: /tmp/java/
 
     - name: Install JAVA
       yum:
-        name: /tmp/java/jre-8u201-linux-x64.rpm
+        name: /tmp/java/{{ lookup('ini', 'JAVA_PACKAGE type=properties file=elastic.properties') }}
         state: present
 
     - name: Delete the java rpm file
@@ -32,12 +33,12 @@
 
     - name: Copy the ElasticSearch binary
       copy:
-        src: /etc/ansible/elasticsearch-6.6.0.rpm
+        src: /etc/ansible/{{ lookup('ini', 'ELASTICSEARCH_PACKAGE type=properties file=elastic.properties') }}
         dest: /tmp/elastic/
 
     - name: Install ElasticSearch
       yum:
-        name: /tmp/elastic/elasticsearch-6.6.0.rpm
+        name: /tmp/elastic/{{ lookup('ini', 'ELASTICSEARCH_PACKAGE type=properties file=elastic.properties') }}
         state: present
 
     - name: Delete the ElasticSearch rpm file
