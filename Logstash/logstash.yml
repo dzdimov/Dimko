@@ -23,12 +23,12 @@
 
     - name: Copy the LogStash binary
       copy: 
-        src: /etc/ansible/logstash/logstash-6.6.0.rpm
+        src: /etc/ansible/logstash/{{ lookup('ini', 'LOGSTASH_PACKAGE type=properties file=logstash.properties') }}
         dest: /tmp/logstash/
        
     - name: Install LogStash
       yum:
-        name: /tmp/logstash/logstash-6.6.0.rpm
+        name: /tmp/logstash/{{ lookup('ini', 'LOGSTASH_PACKAGE type=properties file=logstash.properties') }}
         state: present
 ##      shell: rpm -ivh /tmp/logstash/???
 
