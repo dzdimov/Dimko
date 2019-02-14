@@ -4,7 +4,7 @@
   tasks:
     - name: Copy the binary
       copy:
-        src: /etc/ansible/kibana/kibana-6.6.0-x86_64.rpm
+        src: /etc/ansible/kibana/{{ lookup('ini', 'KIBANA_PACKAGE type=properties file=kibana.properties') }}
         dest: /tmp/kibana/
         
 ##    - name: Link binaries
@@ -50,7 +50,7 @@
         
     - name: Install KIBANA_PACKAGE
       yum:
-        name: /tmp/kibana/kibana-6.6.0-x86_64.rpm
+        name: /tmp/kibana/{{ lookup('ini', 'KIBANA_PACKAGE type=properties file=kibana.properties') }}
         state: present
         
 ##      shell: rpm -ivh /tmp/$KIBANA_PACKAGE
