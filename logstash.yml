@@ -88,7 +88,7 @@
 
     - name: Create trustStore jks file, needed by logstash
       shell: |
-        yes |  keytool -import -file $_script_dir/certs/ca-chain.cert.pem -alias caChain -storepass $KEY_PASS -keystore /opt/logstash/certs/logstashTrustStore.jks
+        yes |  keytool -import -file /opt/logstash/certs/ca-chain.cert.pem -alias caChain -storepass AcMd3v -keystore /opt/logstash/certs/logstashTrustStore.jks
         update-ca-trust force-enable
         update-ca-trust extract
         
@@ -114,13 +114,13 @@
         echo "xpack.monitoring.elasticsearch.username: logstash_system" >> logstash.yml
         echo "xpack.monitoring.elasticsearch.password: logstashpass" >> logstash.yml
         sed -i 's/KILL_ON_STOP_TIMEOUT=0/KILL_ON_STOP_TIMEOUT=1/g' /etc/init.d/logstash
-        sed -i "s|\$LOGSTASH_MYSQ_PORT|$LOGSTASH_MYSQL_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$LOGSTASH_FREVVO_PORT|$LOGSTASH_FREVVO_PORT|g" "$/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$LOGSTASH_SNOWBOUND_PORT|$LOGSTASH_SNOWBOUND_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$LOGSTASH_PENTAHO_PORT|$LOGSTASH_PENTAHO_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$ELK_PORT|$ELK_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$LOGSTASH_ALF_PORT|$LOGSTASH_ALF_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-        sed -i "s|\$ES_PORT|$ES_PORT|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_99"
+        sed -i "s|\5043|5043|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\5041|5041|g" "$/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\5040|5040|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\5039|5039|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\5044|5044|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\5042|5042|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+        sed -i "s|\9200|9200|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_99"
 
             #    $LS_HOME/bin/system-install $LS_START_UP_OPTIONS_PATH/startup.options 
     - name: Adding LogStash service to autostart
@@ -134,6 +134,6 @@
     - name: Copy logstash config files in te logstast cong.d folder
       copy:
         src: /tmp/logstash_configs/*.conf
-        dest: 
+        dest: /opt/logstash/conf.d/
         remote_src: yes
 ##      shell: sudo cp tmp/logstash_configs/*.conf $LOGSTASH_CONF_DIR/
