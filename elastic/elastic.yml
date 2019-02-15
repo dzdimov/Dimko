@@ -104,21 +104,21 @@
 
     - replace:
       path: /etc/elasticsearch/elasticsearch.yml
-      regexp: {{lookup ('ini', ES_PORT, type=properties file=elastic.properties')}}
-      replace: \{{lookup ('ini', ES_PORT, type=properties file=elastic.properties')}}
+      regexp: "{{lookup ('ini', ES_PORT, type=properties file=elastic.properties')}}"
+      replace: \"{{lookup ('ini', ES_PORT, type=properties file=elastic.properties')}}"
       backup: yes
       
     - replace:
       path: /etc/rc.d/init.d/elasticsearch
-      regexp: {{lookup ('ini', CONF_DIR, type=properties file=elastic.properties')}}=\/etc\/elasticsearch\
-      replace: {{lookup ('ini', CONF_DIR, type=properties file=elastic.properties')}}=\/opt\/elasticsearch\/conf\
+      regexp: "{{lookup ('ini', CONF_DIR, type=properties file=elastic.properties')}}"=\/etc\/elasticsearch\
+      replace: "{{lookup ('ini', CONF_DIR, type=properties file=elastic.properties')}}"=\/opt\/elasticsearch\/conf\
       backup: yes
       
-    - replace:
-      path: /etc/rc.d/init.d/elasticsearch
-      regexp: \-Edefault\.path\.data=\????? WHAT IS DATA_DIR ?????
-      replace: \ 
-      backup: yes
+##    - replace:
+##      path: /etc/rc.d/init.d/elasticsearch
+##      regexp: \-Edefault\.path\.data=\????? WHAT IS DATA_DIR ?????
+##      replace: \ 
+##      backup: yes
 ##    - name: Setting the port in the ElasticSearch config file  ???
 ##      shell: |
 ##        sed -i "s|\9200|9200|g" "/etc/elasticsearch/elasticsearch.yml"
