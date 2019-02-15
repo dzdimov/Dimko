@@ -14,7 +14,7 @@
       - /private
       - /conf
       - /conf/scripts
-
+      
     - name: Copy the JAVA binary
       copy:
         src: /etc/ansible/{{ lookup('ini', 'JAVA_PACKAGE type=properties file=elastic.properties') }}
@@ -101,19 +101,12 @@
         src: /etc/elasticsearch/elasticsearch.yml
         dest: /opt/elasticsearch/conf/elasticsearch.yml.back
         remote_src: yes           
-
-    - name: Replace ES_PORT
-      replace:
-        path: /etc/elasticsearch/elasticsearch.yml
-        regexp: "\'{{ lookup ('ini', 'ES_PORT, type=properties file=elastic.properties')}}'"
-        replace: "{{ lookup('ini', 'ES_PORT, type=properties file=elastic.properties') }}"
-        backup: yes
     
     - name: Replace CONF_DIR    
       replace:
         path: /etc/rc.d/init.d/elasticsearch
-        regexp: "'{{ lookup ('ini', 'CONF_DIR, type=properties file=elastic.properties')}}'=/etc/elasticsearch"
-        replace: "'{{ lookup ('ini', 'CONF_DIR, type=properties file=elastic.properties')}}'=/opt/elasticsearch/conf"
+        regexp: 
+        replace: 
         backup: yes
       
 ##    - replace:
@@ -131,6 +124,13 @@
       copy:
         src: /etc/ansible/elasticsearch.yml
         dest: /opt/elasticsearch/conf
+        
+    - name: Replace ES_PORT
+      replace:
+        path: /etc/elasticsearch/elasticsearch.yml
+        regexp: "\'{{ lookup ('ini', 'ES_PORT, type=properties file=elastic.properties')}}'"
+        replace: "{{ lookup('ini', 'ES_PORT, type=properties file=elastic.properties') }}"
+        backup: yes
 
     - name: Copying ElasticSearch configuration files
       copy:
