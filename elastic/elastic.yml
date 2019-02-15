@@ -104,8 +104,8 @@
 
     - replace:
       path: /etc/elasticsearch/elasticsearch.yml
-      regexp: '{{ lookup('ini', 'ES_PORT, type=properties file=elastic.properties') }}'
-      replace: '\'{{ lookup ('ini', 'ES_PORT, type=properties file=elastic.properties')}}''
+      regexp: {{ lookup('ini', 'ES_PORT, type=properties file=elastic.properties') }}
+      replace: \'{{ lookup ('ini', 'ES_PORT, type=properties file=elastic.properties')}}'
       backup: yes
       
     - replace:
