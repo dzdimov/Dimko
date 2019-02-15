@@ -1,6 +1,6 @@
 ---
 # defaults file for /etc/ansible/roles/elastic
-JAVA_PACKAGE:"jre-8u201-linux-x64.rpm"
-ES_DIR:"/opt/elasticsearch"
-ELASTICSEARCH_PACKAGE:"elasticsearch-6.6.0.rpm"
-ES_PORT:"9200"
+JAVA_PACKAGE: "jre-8u201-linux-x64.rpm"
+ES_DIR: "/opt/elasticsearch"
+ELASTICSEARCH_PACKAGE: "elasticsearch-6.6.0.rpm"
+ES_PORT: "9200"

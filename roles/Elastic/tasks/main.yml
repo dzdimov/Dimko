@@ -120,6 +120,7 @@
         path: /etc/rc.d/init.d/elasticsearch
         regexp: 
         backup: yes
+        
 ##    - name: Setting the port in the ElasticSearch config file  ???
 ##      shell: |
 ##        sed -i "s|\9200|9200|g" "/etc/elasticsearch/elasticsearch.yml"
