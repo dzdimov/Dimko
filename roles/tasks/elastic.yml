@@ -1,0 +1,219 @@
+---
+- hosts: all
+  become: sudo
+  tasks:
+    - name: Create the directory structure
+      file:
+        path: /opt/elasticsearch/{{item}}
+        state: directory
+        mode: 0755
+      with_items: 
+      - /certs
+      - /data
+      - /logs
+      - /private
+      - /conf
+      - /conf/scripts
+
+    - name: Copy the JAVA binary
+      copy:
+        src: /etc/ansible/{{ lookup('ini', 'JAVA_PACKAGE type=properties file=elastic.properties') }}
+        src: /etc/ansible/jre-8u201-linux-x64.rpm
+        dest: /tmp/java/
+
+    - name: Install JAVA
+      yum:
+        name: /tmp/java/{{ lookup('ini', 'JAVA_PACKAGE type=properties file=elastic.properties') }}
+        state: present
+
+    - name: Delete the java rpm file
+      file:
+        path: /tmp/java
+        state: absent
+
+    - name: Copy the ElasticSearch binary
+      copy:
+        src: /etc/ansible/{{ lookup('ini', 'ELASTICSEARCH_PACKAGE type=properties file=elastic.properties') }}
+        dest: /tmp/elastic/
+
+    - name: Install ElasticSearch
+      yum:
+        name: /tmp/elastic/{{ lookup('ini', 'ELASTICSEARCH_PACKAGE type=properties file=elastic.properties') }}
+        state: present
+
+    - name: Delete the ElasticSearch rpm file
+      file:
+        path: /tmp/elastic
+        state: absent
+
+    - name: Change the ownership on all files in /opt/elasticsearch/
+      file: 
+        dest: /opt/elasticsearch/
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0755
+        recurse: yes
+
+    - name: Setting max open files for elasticsearch user
+      shell: |
+        echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
+        echo "elasticsearch hard nproc 4096" >> /etc/security/limits.conf
+        echo "elasticsearch soft nofile 65536" >> /etc/security/limits.conf
+        echo "elasticsearch hard nofile 65536" >> /etc/security/limits.conf
+
+    - name: Adding services to auto start
+      service: name=elasticsearch enabled=yes
+
+    - name: Adding ElasticSearch to startup.sh & shutdown.sh scripts
+      shell: |
+        echo "service elasticsearch start" >> /usr/local/bin/startup.sh
+        echo "service elasticsearch stop" >> /usr/local/bin/shutdown.sh
+
+    - name: Start ElasticSearch
+      service: 
+        name=elasticsearch 
+        state=started
+
+    - name: Setting index cat script
+      shell: |
+        echo "curl 'localhost:9200/_cat/indices?v'" >> /usr/local/bin/escat-index
+
+    - name: Setting permision
+      file: dest=/usr/local/bin/escat-index mode=a+x
+
+    - name: Setting node cat script
+      shell: |
+        echo "curl 'localhost:9200/_cat/nodes?v'" >> /usr/local/bin/escat-node
+
+    - name: Setting permision
+      file: dest=/usr/local/bin/escat-node mode=a+x
+
+    - name: copy fix-ownership.sh
+      copy:
+        src: /etc/ansible/fix-ownership.sh
+        dest: /usr/local/bin/elasticsearch-setup-passwords
+        
+    - name: Setting ownership 
+      shell: echo "/usr/local/bin/fix-ownership.sh" >> /usr/local/bin/startup.sh
+
+    - name: Backup the default ElasticSearch configuration file
+      copy:
+        src: /etc/elasticsearch/elasticsearch.yml
+        dest: /opt/elasticsearch/conf/elasticsearch.yml.back
+        remote_src: yes           
+
+    - name: Replace ES_PORT
+      replace:
+        path: /etc/elasticsearch/elasticsearch.yml
+        regexp: "\'{{ lookup ('ini', 'ES_PORT, type=properties file=elastic.properties')}}'"
+        replace: "{{ lookup('ini', 'ES_PORT, type=properties file=elastic.properties') }}"
+        backup: yes
+    
+    - name: Replace CONF_DIR    
+      replace:
+        path: /etc/rc.d/init.d/elasticsearch
+        regexp: "'{{ lookup ('ini', 'CONF_DIR, type=properties file=elastic.properties')}}'=/etc/elasticsearch"
+        replace: "'{{ lookup ('ini', 'CONF_DIR, type=properties file=elastic.properties')}}'=/opt/elasticsearch/conf"
+        backup: yes
+      
+##    - replace:
+##      path: /etc/rc.d/init.d/elasticsearch
+##      regexp: \-Edefault\.path\.data=\????? WHAT IS DATA_DIR ?????
+##      replace: \ 
+##      backup: yes
+##    - name: Setting the port in the ElasticSearch config file  ???
+##      shell: |
+##        sed -i "s|\9200|9200|g" "/etc/elasticsearch/elasticsearch.yml"
+##        sed -i "s|CONF_DIR=\"\/etc\/elasticsearch\"|CONF_DIR=\"\/opt\/elasticsearch\/conf\"|g" /etc/rc.d/init.d/elasticsearch
+##        sed -i "s|\-Edefault\.path\.data=\$DATA_DIR|"\ "|g" /etc/rc.d/init.d/elasticsearch
+
+    - name: Copying ElasticSearch configuration files
+      copy:
+        src: /etc/ansible/elasticsearch.yml
+        dest: /opt/elasticsearch/conf
+
+    - name: Copying ElasticSearch configuration files
+      copy:
+        src: /etc/elasticsearch/jvm.options
+        dest: /opt/elasticsearch/conf
+        remote_src: yes
+
+    - name: Copying ElasticSearch configuration files
+      copy:
+        src: /etc/elasticsearch/log4j2.properties
+        dest: /opt/elasticsearch/conf
+        remote_src: yes
+
+    - name: Change the ownership on all files in /opt/elasticsearch/
+      file: 
+        dest: /opt/elasticsearch/
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0755
+        recurse: yes
+
+    - name: Start ElasticSearch
+      service: 
+        name: "elasticsearch"
+        state: started
+        enabled: yes
+
+    - name: Wait for 90 seconds for elasticsearch to become responsive...
+      wait_for: timeout=90
+      delegate_to: localhost
+
+    - name: Configuring elsaticsearch for acm_advanced_search
+##      uri:
+##        url: http://localhost:9200/acm_advanced_search?pretty
+##        method: PUT
+##        Content-Type: "application/json"        
+##      shell: 'curl -XPUT localhost:9200/acm_advanced_search?pretty -H "Content-Type: application/json" --data-binary @/etc/ansible/acmIndexConfig.json'
+      shell: 'curl -XPUT localhost:9200/acm_advanced_search?pretty -H "Content-Type: application/json" --data-binary @/etc/elasticsearch/acmIndexConfig.json'  
+    - name: Configuring elsaticsearch for acm_quick_search
+      shell: 'curl -XPUT localhost:9200/acm_quick_search?pretty -H "Content-Type: application/json" --data-binary @$/etc/ansible/acmIndexConfig.json'
+
+    - name: Configuring elsaticsearch for acm_log_search
+      shell: 'curl -XPUT localhost:9200/acm_log_search?pretty -H "Content-Type: application/json" --data-binary @/etc/ansible/acmIndexConfig.json'
+
+    - name: Stopping ElasticSearch
+      service:
+        name=elasticsearch
+        state=stopped
+
+    - name: chmod
+##    file: dest=opt/elasticsearch/conf/* mode=a+x
+      shell: chmod 644 /opt/elasticsearch/conf/*
+
+    - name: Passwords for build in accounts ,elastic, kibana, logstash
+      service:
+        name: "elasticsearch"
+        state: started
+
+    - name: Sleep for 90 seconds
+      wait_for: timeout=90
+      delegate_to: localhost
+        
+    - name: Generate ELK Passwords
+      shell: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b -v > passwords
+      ignore_errors: true
+
+    - name: elasticpass
+      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
+        {
+          "password": "kibanapass"
+        }'
+        
+    - name: kibanapass
+      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
+        {
+          "password": "kibanapass"
+        }'
+        
+    - name: logstashpass
+      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/logstash_system/_password?pretty -H "Content-Type: application/json" -d
+        {
+          "password": "logstashpass"
+        }'
+
+    - name: Remove passwords
+      shell: rm /passwords -f
