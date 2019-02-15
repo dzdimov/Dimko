@@ -110,7 +110,7 @@
       
     - replace:
       path: /etc/rc.d/init.d/elasticsearch
-      regexp: {{lookup ('ini', CONF_DIR, type=properties file=elastic.properties')}}\=\/etc\/elasticsearch\
+      regexp: {{lookup ('ini', CONF_DIR, type=properties file=elastic.properties')}}=\/etc\/elasticsearch\
       replace: {{lookup ('ini', CONF_DIR, type=properties file=elastic.properties')}}=\/opt\/elasticsearch\/conf\
       backup: yes
       
