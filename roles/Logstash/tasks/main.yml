@@ -228,7 +228,7 @@
         
     - name: Copy logstash config files in te logstast cong.d folder
       copy:
-        src: /tmp/logstash_configs/*.conf
+        src: /tmp/logstash/logstash_configs/
         dest: /opt/logstash/conf.d/
         remote_src: yes
 ##      shell: sudo cp tmp/logstash_configs/*.conf $LOGSTASH_CONF_DIR/
