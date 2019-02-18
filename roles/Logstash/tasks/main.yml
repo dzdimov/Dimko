@@ -1,2 +1,234 @@
 ---
 # tasks file for /etc/ansible/GIT/Dimko/roles/Logstash
+- hosts: all
+  become: sudo
+  tasks:
+##    - name: Copy the binary
+##      copy:
+##        src: /etc/ansible/logstash/certs/
+##        dest: /tmp/logstash/
+        
+##    - name: Linking binaries
+##      shell: ln -s /tmp/../../../bin/$LOGSTASH_PACKAGE tmp/logstash/$LOGSTASH_PACKAGE
+     
+    - name: Create the directories
+      file:
+        path: /opt/logstash/{{item}}
+        state: directory
+        mode: 0755
+      with_items:
+      - /logs
+      - /certs
+      - /private
+      - /data
+
+    - name: Copy the LogStash binary
+      copy: 
+        src: /etc/ansible/logstash/{{ LOGSTASH_PACKAGE }}
+        dest: /tmp/logstash/
+       
+    - name: Install LogStash
+      yum:
+        name: /tmp/logstash/{{ LOGSTASH_PACKAGE }}
+        state: present
+##      shell: rpm -ivh /tmp/logstash/???
+
+    - name: Delete the binary
+      file:
+        path: /tmp/logstash/
+        state: absent
+##      shell: rm -r /tmp/logstash/
+      
+    - name: Copy logstash from etc to opt/logstash/
+      copy:
+        src: /etc/logstash/
+        dest: /tmp/logstash/
+        remote_src: yes
+##      shell: cp -r /etc/logstash/* /opt/logstash/
+      
+    - name: Delete logstash from etc
+      file:
+        path: /etc/logstash
+        state: absent
+##      shell: rm -rf /etc/logstash/*
+      
+    - name: Copy the certificates
+      copy:
+        src: /etc/ansible/GIT/Dimko/roles/Logstash/files/certs/
+        dest: /tmp/certs/
+        
+    - name: Install the certificates
+      copy:
+        src: /tmp/certs/acm-elasticsearch-server-client.key.pkcs8
+        dest: /opt/logstash/private/
+        remote_src: yes
+        
+    - name: Install the certifites 2
+      copy:
+        src: /tmp/certs/acm-elasticsearch-server-client.cert.pem
+        dest: /opt/logstash/certs/
+        remote_src: yes
+        
+    - name: Install the certificates 3
+      copy:
+        src: /tmp/certs/ca-chain.cert.pem
+        dest: /opt/logstash/certs/
+        remote_src: yes
+        
+    - name: Install the certificates 4
+      copy:
+        src: /tmp/certs/ca-chain.cert.pem
+        dest: /etc/pki/ca-trust/source/anchors/
+        remote_src: yes
+        
+##      shell: |
+##      sudo cp /tmp/certs/acm-elasticsearch-server-client.key.pkcs8 /opt/logstash/private/
+##      sudo cp /tmp/certs/acm-elasticsearch-server-client.cert.pem /opt/logstash/certs/
+##      sudo cp /tmp/certs/ca-chain.cert.pem /opt/logstash/certs/
+##      sudo cp /tmp/certs/ca-chain.cert.pem /etc/pki/ca-trust/source/anchors/
+
+    - name: Create trustStore jks file, needed by logstash
+      shell: |
+        yes |  keytool -import -file /opt/logstash/certs/ca-chain.cert.pem -alias caChain -storepass AcMd3v -keystore /opt/logstash/certs/logstashTrustStore.jks
+        update-ca-trust force-enable
+        update-ca-trust extract
+        
+    - name: Change the ownership on all files in /opt/logstash/
+      file: 
+        dest: /opt/logstash/
+        owner: logstash
+        group: logstash
+        mode: 0755
+        recurse: yes
+        
+    - name: Copy Logstash Config files
+      copy:
+        src: /etc/ansible/GIT/Dimko/roles/Logstash/files/logstash_configs
+        dest: /tmp/logstash/
+        
+        
+    - name: Replace LS_SETTINGS_DIR
+      replace:
+        path: /opt/logstash/startup.options
+        regexp: "LS_SETTINGS_DIR=/etc/logstash"
+        replace: "LS_SETTINGS_DIR=/opt/logstash"
+        backup: yes
+
+    - name: Replace path.config
+        replace:
+        path: /opt/logstash/logstash.yml
+        regexp: "path.config: /etc/logstash/conf.d"
+        replace: "path.config: /opt/logstash/conf.d"
+        backup: yes
+
+    - name: Replace path.logstash
+      replace:
+        path: /opt/logstash/logstash.yml
+        regexp: "path.logs: /var/log/logstash"
+        replace: "path.logs: /opt/logstash/log"
+        backup: yes
+
+    - name: Replace path.data
+      replace:
+        path: /opt/logstash/logstash.yml
+        regexp: "path.data: /var/lib/logstash"
+        replace: "path.data: /opt/logstash/data"
+        
+    - name: Add username and pass to logstash.yml
+      shell: |
+        echo "xpack.monitoring.elasticsearch.username: logstash_system" >> logstash.yml
+        echo "xpack.monitoring.elasticsearch.password: logstashpass" >> logstash.yml
+        /usr/share/logstash/bin/system-install /opt/logstash/startup.options sysv
+
+    - name: Replace KILL_ON_STOP_TIMEOUT
+      replace:
+        path: /etc/init.d/logstash
+        regexp: "KILL_ON_STOP_TIMEOUT=0"
+        replace: "KILL_ON_STOP_TIMEOUT=1"
+        backup: yes
+        
+    - name: Change LOGSTASH_MYSQL_PORT
+      replace:
+        path: /tmp/logstash.logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        regexp: "\{{LOGSTASH_MYSQL_PORT}}"
+        replace: "{{LOGSTASH_MYSQL_PORT}}"
+        backup: yes
+
+    - name: Change LOGSTASH_FREVVO_PORT
+      replace:
+        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        regexp: "\{{ LOGSTASH_FREVVO_PORT }}"
+        replace: "{{ LOGSTASH_FREVVO_PORT }}"
+        backup: yes
+
+    - name: Change LOGSTASH_SNOWBOUND_PORT
+      replace:
+        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        regexp: "\{{LOGSTASH_SNOWBOUND_PORT}}"
+        replace: "{{LOGSTASH_SNOWBOUND_PORT}}"
+        backup: yes
+
+    - name: Change LOGSTASH_PENTAHO_PORT
+      replace:
+        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        regexp: "\{{LOGSTASH_PENTAHO_PORT}}"
+        replace: "{{LOGSTASH_PENTAHO_PORT}}"
+        backup: yes
+
+    - name: Change ELK_PORT
+      replace:
+        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        regexp: "\{{ELK_PORT}}"
+        replace: "{{ELK_PORT}}"
+        backup: yes
+
+    - name: Change LOGSTASH_ALF_PORT
+      replace:
+        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        regexp: "\{{LOGSTASH_ALF_PORT}}"
+        replace: "{{LOGSTASH_ALF_PORT}}"
+        backup: yes
+
+    - name: Change ES_PORT
+      replace:
+        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_99}}
+        regexp: "\{{ES_PORT}}"
+        replace: "{{ES_PORT}}"
+        backup: yes
+##    - name: Copy logstash_configs
+##      copy:
+##        src: /etc/ansible/GIT/Dimko/roles/Logstash/files/logstash_configs
+##        dest: /opt/logstash/
+        
+##    - name: Update logstash.yml file
+##      shell: |
+##        sed -i 's/LS_SETTINGS_DIR=\/etc\/logstash/LS_SETTINGS_DIR=\/opt\/logstash/g' /opt/logstash/startup.options
+##        sed -i 's/path.config: \/etc\/logstash\/conf.d/path.config: \/opt\/logstash\/conf.d/g' /opt/logstash/logstash.yml
+##        sed -i 's/path.logs: \/var\/log\/logstash/path.logs: \/opt\/logstash\/log\//g' /opt/logstash/logstash.yml
+##        sed -i 's/path.data: \/var\/lib\/logstash/path.data: \/opt\/logstash\/data\//g' /opt/logstash/logstash.yml
+##        echo "xpack.monitoring.elasticsearch.username: logstash_system" >> logstash.yml
+##        echo "xpack.monitoring.elasticsearch.password: logstashpass" >> logstash.yml
+##        sed -i 's/KILL_ON_STOP_TIMEOUT=0/KILL_ON_STOP_TIMEOUT=1/g' /etc/init.d/logstash
+##        sed -i "s|\5043|5043|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+##        sed -i "s|\5041|5041|g" "$/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+##        sed -i "s|\5040|5040|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+##        sed -i "s|\5039|5039|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+##        sed -i "s|\5044|5044|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+##        sed -i "s|\5042|5042|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
+##        sed -i "s|\9200|9200|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_99"
+
+            #    $LS_HOME/bin/system-install $LS_START_UP_OPTIONS_PATH/startup.options 
+    - name: Adding LogStash service to autostart
+      service: name=logstash enabled=yes
+     
+    - name: Adding LogStash to startup.sh & shutdown.sh scripts
+      shell: |
+        echo '/etc/init.d/logstash start' >> /usr/local/bin/startup.sh
+        echo '/etc/init.d/logstash stop' >> /usr/local/bin/shutdown.sh
+        
+    - name: Copy logstash config files in te logstast cong.d folder
+      copy:
+        src: /tmp/logstash_configs/*.conf
+        dest: /opt/logstash/conf.d/
+        remote_src: yes
+##      shell: sudo cp tmp/logstash_configs/*.conf $LOGSTASH_CONF_DIR/
