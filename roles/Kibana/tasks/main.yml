@@ -1,2 +1,492 @@
 ---
 # tasks file for /etc/ansible/GIT/Dimko/roles/Kibana
+- hosts: all
+  become: sudo
+  tasks:
+    - name: Copy the binary
+      copy:
+        src: /etc/ansible/kibana/{{ lookup('ini', 'KIBANA_PACKAGE type=properties file=kibana.properties') }}
+        dest: /tmp/kibana/
+        
+##    - name: Link binaries
+##      shell: ln -s /tmp/../../../bin/$KIBANA_PACKAGE /tmp/$KIBANA_PACKAGE
+  
+    - name: Create the directories
+      file:
+        path: /opt/kibana/{{item}}
+        state: directory
+        mode: 0755
+      with_items:
+      - /log
+      - /config
+      - /cert
+      - /private
+      
+    - name: Copy certificates to remote machine
+      copy:
+        src: /etc/ansible/GIT/Dimko/roles/Kibana/files/certs/
+        dest: /tmp/certs/
+      
+    - name: Copying the certificates 1
+      copy:
+        src: /tmp/certs/acm-elasticsearch.cert.pem
+        dest: /opt/kibana/cert/
+        remote_src: yes
+        
+    - name: Copying the key
+      copy:
+        src: /tmp/certs/acm-elasticsearch.key.pem
+        dest: /opt/kibana/private/
+        remote_src: yes
+        
+    - name: Copying the certificate 2
+      copy:
+        src: /tmp/certs/ca-chain.cert.pem
+        dest: /opt/kibana/cert/
+        remote_src: yes
+##      shell: |
+##        cp /tmp/certs/acm-elasticsearch.cert.pem /opt/kibana/cert/
+##        cp /tmp/certs/acm-elasticsearch.key.pem /opt/kibana/private/
+##        cp /tmp/certs/ca-chain.cert.pem /opt/kibana/cert/
+        
+    - name: Install KIBANA_PACKAGE
+      yum:
+        name: /tmp/kibana/{{ KIBANA_PACKAGE }}
+        state: present
+        
+##      shell: rpm -ivh /tmp/$KIBANA_PACKAGE
+      
+    - name: Copy everything from /usr/share to opt/kibana/
+##      copy:
+##        src: /usr/share/kibana
+##        dest: /opt/kibana
+##        remote_src: yes
+##        directory_mode: yes
+      shell: cp -r /usr/share/kibana/* /opt/kibana
+      
+    - name: Delete the folder
+      file:
+        path: /usr/share/kibana
+        state: absent
+##      shell: rm -rf /usr/share/kibana
+      
+    - name: Change ownership of opt/kibana
+      file:
+        dest: /opt/kibana/
+        owner: kibana
+        group: kibana
+        mode: 0755
+        recurse: yes
+  
+    - name: Replace kibana.stdout
+      replace:
+        path: /etc/init.d/kibana
+        regexp: "/var/log/kibana/kibana.stdout"
+        replace: "/opt/kibana/log/kibana.stdout"
+        backup: yes
+		
+    - name: Replace kibana.stderr
+      replace:
+        path: /etc/init.d/kibana
+        regexp: "/var/log/kibana/kibana.stderr"
+        replace: "/opt/kibana/log/kibana.stderr"
+        backup: yes
+
+    - name: Replace kibana program
+      replace:
+        path: /etc/init.d/kibana
+        regexp: "program=/usr/share/kibana/bin/kibana"
+        replace: "program=/opt/kibana/bin/kibana"
+        backup: yes
+
+    - name: Replace args
+      replace:
+        path: /etc/init.d/kibana
+        regexp: "args=-c\\\ /etc/kibana/kibana.yml"
+        replace: "args=-c\\\ /opt/kibana/config/kibana.yml"
+        backup: yes  
+
+##    - name: Change /etc/init.d/kibana
+##      shell: |
+##        sed -i 's/\/var\/log\/kibana\/kibana.stdout/\/opt\/kibana\/log\/kibana.stdout/g' /etc/init.d/kibana
+##        sed -i 's/\/var\/log\/kibana\/kibana.stderr/\/opt\/kibana\/log\/kibana.stderr/g' /etc/init.d/kibana
+##        sed -i 's/program=\/usr\/share\/kibana\/bin\/kibana/program=\/opt\/kibana\/bin\/kibana/g' /etc/init.d/kibana
+##        sed -i 's/args=-c\\\\\\\ \/etc\/kibana\/kibana.yml/args=-c\\\\\\ \/opt\/kibana\/config\/kibana.yml/g' /etc/init.d/kibana
+
+    - name: Backup default Kibana configuration file
+      copy:
+        src: /etc/kibana/kibana.yml
+        dest: /opt/kibana/config/kibana.yml.backup
+        remote_src: yes
+##      shell: cp /etc/kibana/kibana.yml /opt/kibana/config/kibana.yml.backup
+      
+    - name: Copying Kibana configuration file
+      copy:
+        src: /etc/ansible/kibana/src/kibana.yml
+        dest: /opt/kibana/config/
+        remote_src: no
+        
+    - name: Delete /etc/kibana/kibana  ??????
+      file:
+        path: /etc/kibana
+        state: absent
+        directory_mode: yes
+##      shell: rm -rf /etc/kibana
+      
+    - name: Delete Elasticsearch var/lock/subsys
+      file:
+        path: /var/lock/subsys/elasticsearch
+        state: absent
+        directory_mode: yes
+        
+    - name: start Elasticsearch
+      service:
+        name=elasticsearch
+        state=started        
+##      shell: |
+##        rm -rf /var/lock/subsys/elasticsearch
+##        service elasticsearch start
+    
+    - name: Wait for 90 seconds
+      wait_for: timeout=90
+      delegate_to: localhost
+      
+    - name: Start Kibana
+      service:
+        name=kibana
+        state=started
+        
+    - name: Wait for 60 seconds
+      wait_for: timeout=60
+      delegate_to: localhost
+      
+    - name: Execute CURL
+      shell: 'curl -XPUT -u elastic:elasticsearch localhost:9200/.kibana/_settings?pretty -H "Content-Type: application/json" -d
+             {
+               "index.blocks.write": true
+             }'
+    
+    - name: Execute CURL 
+      shell: 'curl -XPUT -u elastic:elasticpass localhost:9200/.kibana-6?pretty -H "Content-Type: application/json" -d
+             {
+               "settings" : {
+               "number_of_shards" : 1,
+               "index.mapper.dynamic": false
+             },
+                "mappings" : {
+                "doc": {
+                "properties": {
+                "type": {
+                "type": "keyword"
+              },
+                "updated_at": {
+                "type": "date"
+              },
+                "config": {
+                "properties": {
+                "buildNum": {
+                "type": "keyword"
+              }
+              }
+              },
+                "index-pattern": {
+                  "properties": {
+                    "fieldFormatMap": {
+                      "type": "text"
+                  },
+                    "fields": {
+                      "type": "text"
+                     },
+                "intervalName": {
+                   "type": "keyword"
+                   },
+                "notExpandable": {
+                   "type": "boolean"
+                   },
+            "sourceFilters": {
+              "type": "text"
+            },
+            "timeFieldName": {
+              "type": "keyword"
+            },
+            "title": {
+              "type": "text"
+            }
+          }
+        },
+        "visualization": {
+          "properties": {
+            "description": {
+              "type": "text"
+            },
+            "kibanaSavedObjectMeta": {
+              "properties": {
+                "searchSourceJSON": {
+                  "type": "text"
+                }
+              }
+            },
+            "savedSearchId": {
+              "type": "keyword"
+            },
+            "title": {
+              "type": "text"
+            },
+            "uiStateJSON": {
+              "type": "text"
+            },
+            "version": {
+              "type": "integer"
+            },
+            "visState": {
+              "type": "text"
+            }
+          }
+        },
+        "search": {
+          "properties": {
+            "columns": {
+              "type": "keyword"
+            },
+            "description": {
+              "type": "text"
+            },
+            "hits": {
+              "type": "integer"
+            },
+            "kibanaSavedObjectMeta": {
+              "properties": {
+                "searchSourceJSON": {
+                  "type": "text"
+                }
+              }
+            },
+            "sort": {
+              "type": "keyword"
+            },
+            "title": {
+              "type": "text"
+            },
+            "version": {
+              "type": "integer"
+            }
+          }
+        },
+        "dashboard": {
+          "properties": {
+            "description": {
+              "type": "text"
+            },
+            "hits": {
+              "type": "integer"
+            },
+            "kibanaSavedObjectMeta": {
+              "properties": {
+                "searchSourceJSON": {
+                  "type": "text"
+                }
+              }
+            },
+            "optionsJSON": {
+              "type": "text"
+            },
+            "panelsJSON": {
+              "type": "text"
+            },
+            "refreshInterval": {
+              "properties": {
+                "display": {
+                  "type": "keyword"
+                },
+                "pause": {
+                  "type": "boolean"
+                },
+                "section": {
+                  "type": "integer"
+                },
+                "value": {
+                  "type": "integer"
+                }
+              }
+            },
+            "timeFrom": {
+              "type": "keyword"
+            },
+            "timeRestore": {
+              "type": "boolean"
+            },
+            "timeTo": {
+              "type": "keyword"
+            },
+            "title": {
+              "type": "text"
+            },
+            "uiStateJSON": {
+              "type": "text"
+            },
+            "version": {
+              "type": "integer"
+            }
+          }
+        },
+        "url": {
+          "properties": {
+            "accessCount": {
+              "type": "long"
+            },
+            "accessDate": {
+              "type": "date"
+            },
+            "createDate": {
+              "type": "date"
+            },
+            "url": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 2048
+                }
+              }
+            }
+          }
+        },
+        "server": {
+          "properties": {
+            "uuid": {
+              "type": "keyword"
+            }
+          }
+        },
+        "timelion-sheet": {
+          "properties": {
+            "description": {
+              "type": "text"
+            },
+            "hits": {
+              "type": "integer"
+            },
+            "kibanaSavedObjectMeta": {
+              "properties": {
+                "searchSourceJSON": {
+                  "type": "text"
+                }
+              }
+            },
+            "timelion_chart_height": {
+              "type": "integer"
+            },
+            "timelion_columns": {
+              "type": "integer"
+            },
+            "timelion_interval": {
+              "type": "keyword"
+            },
+            "timelion_other_interval": {
+              "type": "keyword"
+            },
+            "timelion_rows": {
+              "type": "integer"
+            },
+            "timelion_sheet": {
+              "type": "text"
+            },
+            "title": {
+              "type": "text"
+            },
+            "version": {
+              "type": "integer"
+            }
+          }
+        },
+        "graph-workspace": {
+          "properties": {
+            "description": {
+              "type": "text"
+            },
+            "kibanaSavedObjectMeta": {
+              "properties": {
+                "searchSourceJSON": {
+                  "type": "text"
+                }
+              }
+            },
+            "numLinks": {
+              "type": "integer"
+            },
+            "numVertices": {
+              "type": "integer"
+            },
+            "title": {
+              "type": "text"
+            },
+            "version": {
+              "type": "integer"
+            },
+            "wsState": {
+              "type": "text"
+             }
+           }
+         }
+       }
+     }
+   }
+ }'
+ 
+    - name: Curl 2
+      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_reindex?pretty -H "Content-Type: application/json" -d
+             {
+               "source": {
+                 "index": ".kibana"
+               },
+               "dest": {
+                 "index": ".kibana-6"
+               },
+               "script": {
+                 "inline": "ctx._source = [ ctx._type : ctx._source ]; ctx._source.type = ctx._type; ctx._id = ctx._type + \":\" + ctx._id; ctx._type = \"doc\"; ",
+                 "lang": "painless"
+               }
+             }'
+             
+    - name: Curl 3
+      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_aliases?pretty -H "Content-Type: application/json" -d
+              {
+                "actions" : [
+                { "add":  { "index": ".kibana-6", "alias": ".kibana" } },
+                { "remove_index": { "index": ".kibana" } }
+                 ]
+                 }'
+                 
+    - name: Curl 4
+      shell: 'curl -XPUT -u elastic:elasticpass localhost:9200/logstash-0?pretty -H "Content-Type: application/json" -d
+              {
+                "mappings" : {
+                "type1" : {
+                "properties" : {
+                "@timestamp" : { "type" : "date","copy_to": false },
+                "loglevel": { "type": "text", "norms": false, "fields": { "keyword": { "type": "keyword" } } },
+                "host": { "type": "text", "norms": false, "fields": { "keyword": { "type": "keyword" } } },
+                "bytes": { "type": "long" },
+                "response": { "type": "long" }
+                    }
+                  }
+                }
+             }'
+             
+    - name: Configure logstast to be the default index pattern
+      shell: 'curl -XPUT -H "Content-Type: application/json" -u elastic:elasticpass http://localhost:9200/.kibana/index-pattern/logstash-* -d 
+             {"title" : "logstash-*",  "timeFieldName": "@timestamp"}'
+      
+    - name: Stopping Kibana
+      service: name=kibana state=stopped
+      
+    - name: Stopping Elasticsearch
+      service: name=elasticsearch state=stopped
+      
+    - name: Adding services to auto start
+      service: name=kibana enabled=yes
+      
+    - name: Adding Kibana to startup.sh and shutdown.sh scripts
+      shell: |
+        echo '/etc/init.d/kibana start' >> /usr/local/bin/startup.sh
+        echo '/etc/init.d/kibana stop' >> /usr/local/bin/shutdown.sh
