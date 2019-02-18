@@ -44,17 +44,11 @@
         src: /tmp/certs/ca-chain.cert.pem
         dest: /opt/kibana/cert/
         remote_src: yes
-##      shell: |
-##        cp /tmp/certs/acm-elasticsearch.cert.pem /opt/kibana/cert/
-##        cp /tmp/certs/acm-elasticsearch.key.pem /opt/kibana/private/
-##        cp /tmp/certs/ca-chain.cert.pem /opt/kibana/cert/
-        
+
     - name: Install KIBANA_PACKAGE
       yum:
         name: /tmp/kibana/{{ KIBANA_PACKAGE }}
         state: present
-        
-##      shell: rpm -ivh /tmp/$KIBANA_PACKAGE
       
     - name: Copy everything from /usr/share to opt/kibana/
 ##      copy:
@@ -77,20 +71,6 @@
         group: kibana
         mode: 0755
         recurse: yes
-  
-    - name: Replace kibana.stdout
-      replace:
-        path: /etc/init.d/kibana
-        regexp: "/var/log/kibana/kibana.stdout"
-        replace: "/opt/kibana/log/kibana.stdout"
-        backup: yes
-		
-    - name: Replace kibana.stderr
-      replace:
-        path: /etc/init.d/kibana
-        regexp: "/var/log/kibana/kibana.stderr"
-        replace: "/opt/kibana/log/kibana.stderr"
-        backup: yes
 
     - name: Replace kibana program
       replace:
@@ -99,39 +79,11 @@
         replace: "program=/opt/kibana/bin/kibana"
         backup: yes
 
-    - name: Replace args
-      replace:
-        path: /etc/init.d/kibana
-        regexp: "args=-c\\\ /etc/kibana/kibana.yml"
-        replace: "args=-c\\\ /opt/kibana/config/kibana.yml"
-        backup: yes  
-
-##    - name: Change /etc/init.d/kibana
-##      shell: |
-##        sed -i 's/\/var\/log\/kibana\/kibana.stdout/\/opt\/kibana\/log\/kibana.stdout/g' /etc/init.d/kibana
-##        sed -i 's/\/var\/log\/kibana\/kibana.stderr/\/opt\/kibana\/log\/kibana.stderr/g' /etc/init.d/kibana
-##        sed -i 's/program=\/usr\/share\/kibana\/bin\/kibana/program=\/opt\/kibana\/bin\/kibana/g' /etc/init.d/kibana
-##        sed -i 's/args=-c\\\\\\\ \/etc\/kibana\/kibana.yml/args=-c\\\\\\ \/opt\/kibana\/config\/kibana.yml/g' /etc/init.d/kibana
-
     - name: Backup default Kibana configuration file
       copy:
         src: /etc/kibana/kibana.yml
         dest: /opt/kibana/config/kibana.yml.backup
         remote_src: yes
-##      shell: cp /etc/kibana/kibana.yml /opt/kibana/config/kibana.yml.backup
-      
-    - name: Copying Kibana configuration file
-      copy:
-        src: /etc/ansible/kibana/src/kibana.yml
-        dest: /opt/kibana/config/
-        remote_src: no
-        
-    - name: Delete /etc/kibana/kibana  ??????
-      file:
-        path: /etc/kibana
-        state: absent
-        directory_mode: yes
-##      shell: rm -rf /etc/kibana
       
     - name: Delete Elasticsearch var/lock/subsys
       file:
@@ -143,10 +95,7 @@
       service:
         name=elasticsearch
         state=started        
-##      shell: |
-##        rm -rf /var/lock/subsys/elasticsearch
-##        service elasticsearch start
-    
+
     - name: Wait for 90 seconds
       wait_for: timeout=90
       delegate_to: localhost

@@ -150,49 +150,49 @@
     - name: Change LOGSTASH_MYSQL_PORT
       replace:
         path: /tmp/logstash.logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\{{LOGSTASH_MYSQL_PORT}}"
+        regexp: "\\$LOGSTASH_MYSQL_PORT"
         replace: "{{LOGSTASH_MYSQL_PORT}}"
         backup: yes
 
-    - name: Change LOGSTASH_FREVVO_PORT
-      replace:
-        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\{{ LOGSTASH_FREVVO_PORT }}"
-        replace: "{{ LOGSTASH_FREVVO_PORT }}"
-        backup: yes
+##    - name: Change LOGSTASH_FREVVO_PORT
+##      replace:
+##        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+##        regexp: "\{{ LOGSTASH_FREVVO_PORT }}"
+##        replace: "{{ LOGSTASH_FREVVO_PORT }}"
+##        backup: yes
 
     - name: Change LOGSTASH_SNOWBOUND_PORT
       replace:
         path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\{{LOGSTASH_SNOWBOUND_PORT}}"
+        regexp: "\\$LOGSTASH_SNOWBOUND_PORT"
         replace: "{{LOGSTASH_SNOWBOUND_PORT}}"
         backup: yes
 
     - name: Change LOGSTASH_PENTAHO_PORT
       replace:
         path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\{{LOGSTASH_PENTAHO_PORT}}"
+        regexp: "\\$LOGSTASH_PENTAHO_PORT"
         replace: "{{LOGSTASH_PENTAHO_PORT}}"
         backup: yes
 
     - name: Change ELK_PORT
       replace:
         path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\{{ELK_PORT}}"
+        regexp: "\\$ELK_PORT"
         replace: "{{ELK_PORT}}"
         backup: yes
 
     - name: Change LOGSTASH_ALF_PORT
       replace:
         path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\{{LOGSTASH_ALF_PORT}}"
+        regexp: "\\$LOGSTASH_ALF_PORT"
         replace: "{{LOGSTASH_ALF_PORT}}"
         backup: yes
 
     - name: Change ES_PORT
       replace:
         path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_99}}
-        regexp: "\{{ES_PORT}}"
+        regexp: "\\$ES_PORT"
         replace: "{{ES_PORT}}"
         backup: yes
 ##    - name: Copy logstash_configs
