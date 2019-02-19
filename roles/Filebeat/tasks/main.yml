@@ -46,6 +46,9 @@
     - name: Setting password for FileBeat user
       shell: |
       echo -e "{{ FILEBEAT_SERVICE_PASS }}\n{{ FILEBEAT_SERVICE_PASS }}" | passwd {{ FILEBEAT_SERVICE_USER }}
+      
+    - name: Unset
+      shell: |    
       unset "{{ FILEBEAT_SERVICE_PASS }}"
       
     - name: Setting ownership for FileBeat user to filebeat directory
