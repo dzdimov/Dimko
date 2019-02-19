@@ -53,9 +53,9 @@
       
     - name: Setting ownership for FileBeat user to filebeat directory
       file:
-        dest: {{ FILEBEAT_DIR }}
-        owner: {{ FILEBEAT_SERVICE_USER }}
-        group: {{ FILEBEAT_SERVICE_USER }}
+        dest: "{{ FILEBEAT_DIR }}"
+        owner: "{{ FILEBEAT_SERVICE_USER }}"
+        group: "{{ FILEBEAT_SERVICE_USER }}"
         mode: 0755
         recurse: yes
 ##      shell: chown -R $FILEBEAT_SERVICE_USER:$FILEBEAT_SERVICE_USER $FILEBEAT_DIR
