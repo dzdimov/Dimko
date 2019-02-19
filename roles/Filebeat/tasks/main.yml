@@ -68,3 +68,73 @@
       shell: |
         echo '/etc/init.d/filebeat start' >> /usr/local/bin/startup.sh
         echo '/etc/init.d/filebeat stop' >> /usr/local/bin/shutdown.sh
+        
+    
+
+    
+    - name: Install FILEBEAT_DIR (Pisi lokacija od kade da se instalira)
+      shell: install_filebeat /????/????
+      
+    - name: Copy Filebeat config file - filebeat.yml   ????  (Proveri dali ke go iskopira i preimeni file-ot)
+      copy:
+        src: {{ FILEBEAT_ELK_CONFIG_FILE }}
+        dest: {{ FILEBEAT_DIR }}/filebeat.yml
+      
+    - name: Setting Filebeat config file - filebeat.yml
+      replace:
+        path: {{ FILEBEAT_DIR }}/filebeat.yml
+        regexp: "\\$ELK_PORT"
+        replace: "{{ ELK_PORT }}"
+        backup: yes
+        
+    - name: Change ownership
+      file:
+        dest: {{ FILEBEAT_DIR }}/
+        owner: filebeat
+        group: filebeat
+        mode: 0755
+        recurse: yes
+        
+    - name: Delete the default config file for FILEBEAT_DIR
+      file:
+        path: {{ FILEBEAT_CONF_DIR }}/filebeat.yml
+        state: absent
+        
+    - name: Create filebeat_conf directory
+      file:
+        path: {{ FILEBEAT_CONF_DIR }}/conf.d/filebeat
+        state: directory
+        mode: 0755
+        
+    - name: Copy the config files
+      copy:
+        src: /filebeat_configs/
+        dest: {{ FILEBEAT_DIR }}/conf.d/
+        
+    - name: Change the FREVVO_LOG_PATH
+      replace:
+        path: {{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_FREVVO_CONFIG_FILE }}
+        regexp: "//$FREVVO_LOG_PATH"
+        replace: "{{ FREVVO_LOG_PATH }}"
+        backup: yes
+        
+    - name: Change the LOGSTASH_FREVVO_PORT
+      replace:
+        path: {{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_FREVVO_CONFIG_FILE }}
+        regexp: "//$LOGSTASH_FREVVO_PORT"
+        replace: "{{ LOGSTASH_FREVVO_PORT }}"
+        backup: yes
+        
+    - name: Change the ALF_HOME
+      replace:
+        path: {{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_ALF_CONFIG_FILE }}
+        regexp: "//$ALF_HOME"
+        replace: "{{ ALF_HOME }}"
+        backup: yes
+        
+    - name: Change the LOGSTASH_ALF_PORT
+      replace:
+        path: {{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_ALF_CONFIG_FILE }}
+        regexp: "//$LOGSTASH_ALF_PORT"
+        replace: {{ LOGSTASH_ALF_PORT }}
+        backup: yes
