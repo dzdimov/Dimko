@@ -111,7 +111,7 @@
       
     - name: Setting Filebeat config file - filebeat.yml
       replace:
-        path: {{ FILEBEAT_DIR }}/filebeat.yml
+        path: '"{{ FILEBEAT_DIR }}"/filebeat.yml'
         regexp: "\\$ELK_PORT"
         replace: "{{ ELK_PORT }}"
         backup: yes
