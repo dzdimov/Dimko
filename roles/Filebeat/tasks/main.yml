@@ -138,3 +138,57 @@
         regexp: "//$LOGSTASH_ALF_PORT"
         replace: {{ LOGSTASH_ALF_PORT }}
         backup: yes
+        
+    - name: Change the PENTAHO_HOME
+      replace:
+        path: {{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_PENTAHO_CONFIG_FILE }}
+        regexp: "//$PENTAHO_HOME"
+        replace: "{{ PENTAHO_HOME }}"
+        backup: yes
+        
+    - name: Chenge the LOGSTASH_PENTAHO_PORT
+      replace:
+        path: {{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_PENTAHO_CONFIG_FILE }}
+        regexp: "//$LOGSTASH_PENTAHO_PORT"
+        replace: "{{ LOGSTASH_PENTAHO_PORT }}"
+        backup: yes
+        
+    - name: Change the SNOWBOUND_HOME
+      replace:
+        path: {{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_SNOWBOUND_CONFIG_FILE }}
+        regexp: "//$SNOWBOUND_HOME"
+        replace: "{{ SNOWBOUND_HOME }}"
+        backup: yes
+        
+    - name: Change the LOGSTASH_SNOWBOUND_PORT
+      replace:
+        path: {{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_SNOWBOUND_CONFIG_FILE }}
+        regexp: "//$LOGSTASH_SNOWBOUND_PORT"
+        replace: "{{ LOGSTASH_SNOWBOUND_PORT }}"
+        
+    - name: Change the MYSQL_HOME
+      replace:
+        path: {{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_MYSQL_CONFIG_FILE }}
+        regexp: "//$MYSQL_HOME"
+        replace: "{{ MYSQL_HOME }}"
+        backup: yes
+        
+    - name: Change the LOGSTASH_MYSQL_PORT
+      replace:
+        path: {{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_MYSQL_CONFIG_FILE }}
+        regexp: "//$LOGSTASH_MYSQL_PORT"
+        replace: "{{ LOGSTASH_MYSQL_PORT }}"
+        backup: yes
+        
+    - name: Copy the FILEBEAT_ELK_FLATTENED_CONFIG_FILE
+      copy:
+        src: filebeat_configs/{{ FILEBEAT_ELK_FLATTENED_CONFIG_FILE }}
+        dest: {{ FILEBEAT_DIR }}/filebeat.yml
+        
+    - name: Copy the kibana default dashboard to /opt/kibana/kibanaDefaultDashboard/
+      copy:
+        src: kibanaDefaultDashboard/
+        dest: /opt/kibana/kibanaDefaultDashboard/
+        
+    - name: Import the default dashboard
+      shell: /opt/filebeat/filebeat setup -E "output.elasticsearch.username=elastic" -E "output.elasticsearch.password=elasticpass" -E "setup.kibana.host=http://localhost:5601" -E "setup.dashboards.directory =/opt/kibana/kibanaDefaultDashboard/" || fail "#> Failed to impport default dashboard"
