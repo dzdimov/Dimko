@@ -118,7 +118,7 @@
         
     - name: Change ownership
       file:
-        dest: {{ FILEBEAT_DIR }}/
+        dest: '"{{ FILEBEAT_DIR }}"/'
         owner: filebeat
         group: filebeat
         mode: 0755
@@ -126,12 +126,12 @@
         
     - name: Delete the default config file for FILEBEAT_DIR
       file:
-        path: {{ FILEBEAT_CONF_DIR }}/filebeat.yml
+        path: '"{{ FILEBEAT_CONF_DIR }}"/filebeat.yml'
         state: absent
         
     - name: Create filebeat_conf directory
       file:
-        path: {{ FILEBEAT_CONF_DIR }}/conf.d/filebeat
+        path: '"{{ FILEBEAT_CONF_DIR }}"/conf.d/filebeat'
         state: directory
         mode: 0755
         
