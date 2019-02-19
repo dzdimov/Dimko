@@ -115,7 +115,7 @@
         backup: yes
 
     - name: Replace path.config
-        replace:
+      replace:
         path: /opt/logstash/logstash.yml
         regexp: "path.config: /etc/logstash/conf.d"
         replace: "path.config: /opt/logstash/conf.d"
