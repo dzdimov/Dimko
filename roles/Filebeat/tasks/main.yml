@@ -81,13 +81,13 @@
     - name: Install certificates for filebeat->logstash tls communication 2
       copy:
         src: certs/acm-elasticsearch-server-client.key.pem
-        dest: {{ FILEBEAT_DIR }}/private/
+        dest: '"{{ FILEBEAT_DIR }}"/private/'
         remote_src: yes
         
     - name: Install certificates for filebeat->logstash tls communication 3
       copy:
         src: certs/ca-chain.cert.pem
-        dest: {{ FILEBEAT_DIR }}/certs/
+        dest: '"{{ FILEBEAT_DIR }}"/certs/'
         remote_src: yes
         
     - name: Change ownership
@@ -107,7 +107,7 @@
     - name: Copy Filebeat config file - filebeat.yml   ????  (Proveri dali ke go iskopira i preimeni file-ot)
       copy:
         src: {{ FILEBEAT_ELK_CONFIG_FILE }}
-        dest: {{ FILEBEAT_DIR }}/filebeat.yml
+        dest: '"{{ FILEBEAT_DIR }}"/filebeat.yml'
       
     - name: Setting Filebeat config file - filebeat.yml
       replace:
@@ -138,7 +138,7 @@
     - name: Copy the config files
       copy:
         src: /filebeat_configs/
-        dest: {{ FILEBEAT_DIR }}/conf.d/
+        dest: '"{{ FILEBEAT_DIR }}"/conf.d/'
         
     - name: Change the FREVVO_LOG_PATH
       replace:
@@ -212,7 +212,7 @@
     - name: Copy the FILEBEAT_ELK_FLATTENED_CONFIG_FILE
       copy:
         src: filebeat_configs/{{ FILEBEAT_ELK_FLATTENED_CONFIG_FILE }}
-        dest: {{ FILEBEAT_DIR }}/filebeat.yml
+        dest: '"{{ FILEBEAT_DIR }}"/filebeat.yml'
         
     - name: Copy the kibana default dashboard to /opt/kibana/kibanaDefaultDashboard/
       copy:
