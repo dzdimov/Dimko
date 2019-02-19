@@ -165,7 +165,7 @@
       replace:
         path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_ALF_CONFIG_FILE }}"'
         regexp: "//$LOGSTASH_ALF_PORT"
-        replace: {{ LOGSTASH_ALF_PORT }}
+        replace: "{{ LOGSTASH_ALF_PORT }}"
         backup: yes
         
     - name: Change the PENTAHO_HOME
