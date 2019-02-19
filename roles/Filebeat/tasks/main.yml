@@ -6,7 +6,7 @@
     - name: Download filebeat
       shell: wget -q -O $1/$FILEBEAT_PACKAGE --ftp-user=acm --ftp-password=acm ftp://172.27.1.100/$FILEBEAT_PACKAGE
 	  
-    - name: Make directories
+    - name: Create directories
       file:
         path: /opt/filebeat/{{item}}
         state: directory
@@ -17,48 +17,74 @@
       
     - name: Installing filebeat
       shell: |
-        tar xvzf $1/$FILEBEAT_PACKAGE -C /opt/filebeat --strip-components=1 || fail "!> Failed to install FileBeat"
-        sed -i "s|\$FILEBEAT_DIR|$FILEBEAT_DIR|g" "$1/$FILEBEAT_SCRIPT"
-        sed -i "s|\$FILEBEAT_SERVICE_USER|$FILEBEAT_SERVICE_USER|g" "$1/$FILEBEAT_SCRIPT"
+        tar xvzf $1/$FILEBEAT_PACKAGE -C /opt/filebeat --strip-components=1
+     
+    - name: Copy filebeat-sc
+      copy:
+        src: filebeat-sc
+        dest: /etc/init.d/filebeat
+        
+    - name: Replace FILEBEAT_DIR
+      replace:
+        path: /etc/init.d/filebeat
+        regexp: "//$FILEBEAT_DIR"
+        replace: "{{ FILEBEAT_DIR }}"
+        backup: yes
+    
+    - name: Replace the FILEBEAT_SERVICE_USER
+      replace:
+        path: /etc/init.d/filebeat
+        regexp: "//$FILEBEAT_SERVICE_USER"
+        replace: "{{ FILEBEAT_SERVICE_USER }}"
+        backup: yes
         
     - name: Creating FileBeat User
-      shell: useradd $FILEBEAT_SERVICE_USER
+      user:
+        name: {{ FILEBEAT_SERVICE_USER }}
+##     shell: useradd $FILEBEAT_SERVICE_USER
       
     - name: Setting password for FileBeat user
       shell: |
-      echo -e "$FILEBEAT_SERVICE_PASS\n$FILEBEAT_SERVICE_PASS" | passwd $FILEBEAT_SERVICE_USER
-      unset FILEBEAT_SERVICE_PASS
+      echo -e "{{ FILEBEAT_SERVICE_PASS }}\n{{ FILEBEAT_SERVICE_PASS }}" | passwd {{ FILEBEAT_SERVICE_USER }}
+      unset {{ FILEBEAT_SERVICE_PASS }}
       
     - name: Setting ownership for FileBeat user to filebeat directory
-      shell: chown -R $FILEBEAT_SERVICE_USER:$FILEBEAT_SERVICE_USER $FILEBEAT_DIR
-      
-    - name: Copy filebeat script to init.directories
-      shell: cp $1/$FILEBEAT_SCRIPT /etc/init.d/filebeat
+      file:
+        dest: {{ FILEBEAT_DIR }}
+        owner: {{ FILEBEAT_SERVICE_USER }}
+        group: {{ FILEBEAT_SERVICE_USER }}
+        mode: 0755
+        recurse: yes
+##      shell: chown -R $FILEBEAT_SERVICE_USER:$FILEBEAT_SERVICE_USER $FILEBEAT_DIR
+
+###### This is not needed since I copy the file in the begining       
+##    - name: Copy filebeat script to init.directories
+##      shell: cp $1/$FILEBEAT_SCRIPT /etc/init.d/filebeat
       
     - name: Make filebeat executable
       shell: chmod +x /etc/init.d/filebeat
       
-    - name: Copy the certificates to remote machine
-      copy:
-        src: /etc/ansible/filebeat/certs
-        dest: /tmp/filebeat/certs
+##    - name: Copy the certificates to remote machine
+##      copy:
+##        src: certs/
+##        dest: /tmp/filebeat/certs
         
     - name: Install certificates for filebeat->logstash tls communication
       copy:
-        src: /tmp/filebeat/certs/acm-elasticsearch-server-client.cert.pem
-        dest: ????
+        src: certs/acm-elasticsearch-server-client.cert.pem
+        dest: {{ FILEBEAT_DIR }}/certs/
         remote_src: yes
         
     - name: Install certificates for filebeat->logstash tls communication 2
       copy:
-        src: /tmp/filebeat/certs/acm-elasticsearch-server-client.key.pem
-        dest: ????
+        src: certs/acm-elasticsearch-server-client.key.pem
+        dest: {{ FILEBEAT_DIR }}/private/
         remote_src: yes
         
     - name: Install certificates for filebeat->logstash tls communication 3
       copy:
-        src: /tmp/filebeat/certs/ca-chain.cert.pem
-        dest: ????
+        src: certs/ca-chain.cert.pem
+        dest: {{ FILEBEAT_DIR }}/certs/
         remote_src: yes
         
     - name: Change ownership
