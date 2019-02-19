@@ -1,0 +1,13 @@
+{
+  "hits": 0, 
+  "timeRestore": false, 
+  "description": "", 
+  "title": "Default Dashboard", 
+  "uiStateJSON": "{\n  \"P-1\": {\n    \"spy\": {\n      \"mode\": {\n        \"fill\": false,\n        \"name\": null\n      }\n    },\n    \"vis\": {\n      \"colors\": {\n        \"200\": \"#629E51\",\n        \"302\": \"#2F575E\"\n      },\n      \"legendOpen\": true\n    }\n  },\n  \"P-2\": {\n    \"spy\": {\n      \"mode\": {\n        \"fill\": false,\n        \"name\": null\n      }\n    }\n  },\n  \"P-3\": {\n    \"spy\": {\n      \"mode\": {\n        \"fill\": false,\n        \"name\": null\n      }\n    },\n    \"vis\": {\n      \"legendOpen\": true\n    }\n  },\n  \"P-4\": {\n    \"spy\": {\n      \"mode\": {\n        \"fill\": false,\n        \"name\": null\n      }\n    }\n  }\n}", 
+  "panelsJSON": "[\n  {\n    \"col\": 1,\n    \"id\": \"35ef1720-6ca3-11e7-8049-858c370356cc\",\n    \"panelIndex\": 1,\n    \"row\": 4,\n    \"size_x\": 12,\n    \"size_y\": 3,\n    \"type\": \"visualization\"\n  },\n  {\n    \"col\": 9,\n    \"id\": \"da2b6260-6c96-11e7-a76f-f1c5110fce05\",\n    \"panelIndex\": 2,\n    \"row\": 1,\n    \"size_x\": 4,\n    \"size_y\": 3,\n    \"type\": \"visualization\"\n  },\n  {\n    \"col\": 1,\n    \"id\": \"c70465c0-6ca4-11e7-8049-858c370356cc\",\n    \"panelIndex\": 3,\n    \"row\": 7,\n    \"size_x\": 12,\n    \"size_y\": 3,\n    \"type\": \"visualization\"\n  },\n  {\n    \"col\": 1,\n    \"id\": \"96d1cb50-6ca3-11e7-8049-858c370356cc\",\n    \"panelIndex\": 4,\n    \"row\": 1,\n    \"size_x\": 3,\n    \"size_y\": 3,\n    \"type\": \"visualization\"\n  },\n  {\n    \"size_x\": 5,\n    \"size_y\": 3,\n    \"panelIndex\": 5,\n    \"type\": \"visualization\",\n    \"id\": \"fb74b860-6d3e-11e7-b21e-91c6efdbba4a\",\n    \"col\": 4,\n    \"row\": 1\n  }\n]", 
+  "optionsJSON": "{\n  \"darkTheme\": true\n}", 
+  "version": 1, 
+  "kibanaSavedObjectMeta": {
+    "searchSourceJSON": "{\n  \"filter\": [\n    {\n      \"query\": {\n        \"query_string\": {\n          \"analyze_wildcard\": true,\n          \"query\": \"*\"\n        }\n      }\n    }\n  ]\n}"
+  }
+}

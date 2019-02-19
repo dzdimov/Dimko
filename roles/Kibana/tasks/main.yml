@@ -5,7 +5,7 @@
   tasks:
     - name: Copy the binary
       copy:
-        src: /etc/ansible/kibana/{{ lookup('ini', 'KIBANA_PACKAGE type=properties file=kibana.properties') }}
+        src: /etc/ansible/kibana/{{ KIBANA_PACKAGE }}
         dest: /tmp/kibana/
         
 ##    - name: Link binaries

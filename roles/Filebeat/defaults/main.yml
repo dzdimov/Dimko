@@ -1,2 +1,32 @@
 ---
 # defaults file for /etc/ansible/GIT/Dimko/roles/Filebeat
+ES_DIR: "/opt/elasticsearch"
+FILEBEAT_CONF_DIR: "/opt/filebeat"
+LOGSTASH_CONF_DIR: "/etc/logstash/conf.d"
+KIBANA_DIR: "/opt/kibana"
+ALF_HOME: "/opt/alfresco"
+FREVVO_LOG_PATH: "/opt/frevvo/tomcat/logs"
+SNOWBOUND_HOME: "/opt/snowbound"
+PENTAHO_HOME: "/opt/pentaho/server/biserver-ee"
+MYSQL_HOME: "/opt/app/acm/mysql"
+LOGSTASH_MYSQL_PORT: "5043"
+LOGSTASH_ALF_PORT: "5042"
+LOGSTASH_FREVVO_PORT: "5041"
+LOGSTASH_SNOWBOUND_PORT: "5040"
+LOGSTASH_PENTAHO_PORT: "5039"
+ELK_PORT: "5044"
+## ES_SSL_PORT=
+## ES_SERVICE_USER=
+## ES_SERVICE_PASS=AcMd3v$
+FILEBEAT_FREVVO_CONFIG_FILE: "filebeat-frevvo.yml"
+FILEBEAT_ALF_CONFIG_FILE: "filebeat-alfresco.yml"
+FILEBEAT_PENTAHO_CONFIG_FILE: "filebeat-pentaho.yml"
+FILEBEAT_SNOWBOUND_CONFIG_FILE: "filebeat-snowbound.yml"
+FILEBEAT_MYSQL_CONFIG_FILE: "filebeat-mysql.yml"
+FILEBEAT_ELK_CONFIG_FILE: "filebeat-elk.yml"
+FILEBEAT_ELK_FLATTENED_CONFIG_FILE: "filebeat-elk-flattened.yml"
+FILEBEAT_DIR: "/opt/filebeat"
+FILEBEAT_PACKAGE: "filebeat-6.6.0-linux-x86_64.tar.gz"
+FILEBEAT_SERVICE_USER: "filebeat"
+FILEBEAT_SERVICE_PASS: "F!l3B3@T4AcMd3v$"
+FILEBEAT_SCRIPT: "filebeat-sc"
