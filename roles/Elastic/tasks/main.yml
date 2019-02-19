@@ -111,8 +111,8 @@
     - name: Replace CONF_DIR    
       replace:
         path: /etc/rc.d/init.d/elasticsearch
-        regexp: "CONF_DIR=\\"/etc/elasticsearch\\""
-        replace: "CONF_DIR=\\"/opt/elasticsearch/conf\\""
+        regexp: 'CONF_DIR=\\"/etc/elasticsearch\\"'
+        replace: 'CONF_DIR=\\"/opt/elasticsearch/conf\\"'
         backup: yes
 
     - name: Copying ElasticSearch configuration files
