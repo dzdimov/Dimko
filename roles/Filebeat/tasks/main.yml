@@ -75,7 +75,7 @@
     - name: Install certificates for filebeat->logstash tls communication
       copy:
         src: certs/acm-elasticsearch-server-client.cert.pem
-        dest: {{ FILEBEAT_DIR }}/certs/
+        dest: "{{ FILEBEAT_DIR }}"/certs/
         remote_src: yes
         
     - name: Install certificates for filebeat->logstash tls communication 2
