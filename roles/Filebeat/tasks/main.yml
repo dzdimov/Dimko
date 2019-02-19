@@ -5,7 +5,7 @@
   tasks:
     - name: Download filebeat
       shell: wget -q -O $1/$FILEBEAT_PACKAGE --ftp-user=acm --ftp-password=acm ftp://172.27.1.100/$FILEBEAT_PACKAGE
-	  
+
     - name: Create directories
       file:
         path: /opt/filebeat/{{item}}
