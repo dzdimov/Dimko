@@ -40,7 +40,7 @@
         
     - name: Creating FileBeat User
       user:
-        name: {{ FILEBEAT_SERVICE_USER }}
+        name: "{{ FILEBEAT_SERVICE_USER }}"
 ##     shell: useradd $FILEBEAT_SERVICE_USER
       
     - name: Setting password for FileBeat user
