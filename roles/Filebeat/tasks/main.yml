@@ -106,7 +106,7 @@
       
     - name: Copy Filebeat config file - filebeat.yml   ????  (Proveri dali ke go iskopira i preimeni file-ot)
       copy:
-        src: {{ FILEBEAT_ELK_CONFIG_FILE }}
+        src: "{{ FILEBEAT_ELK_CONFIG_FILE }}"
         dest: '"{{ FILEBEAT_DIR }}"/filebeat.yml'
       
     - name: Setting Filebeat config file - filebeat.yml
