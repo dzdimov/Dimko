@@ -8,9 +8,6 @@
 ##        src: /etc/ansible/logstash/certs/
 ##        dest: /tmp/logstash/
         
-##    - name: Linking binaries
-##      shell: ln -s /tmp/../../../bin/$LOGSTASH_PACKAGE tmp/logstash/$LOGSTASH_PACKAGE
-     
     - name: Create the directories
       file:
         path: /opt/logstash/{{item}}
@@ -38,24 +35,29 @@
         path: /tmp/logstash/
         state: absent
 ##      shell: rm -r /tmp/logstash/
-      
-    - name: Copy logstash from etc to opt/logstash/
-      copy:
-        src: /etc/logstash/
-        dest: /tmp/logstash/
-        remote_src: yes
+
+
+## DA SE PRASA DAVID DALI DA OSTANE VO etc      
+##    - name: Copy logstash from etc to opt/logstash/
+##      copy:
+##        src: /etc/logstash/
+##        dest: /opt/logstash/
+##        remote_src: yes
 ##      shell: cp -r /etc/logstash/* /opt/logstash/
       
-    - name: Delete logstash from etc
-      file:
-        path: /etc/logstash
-        state: absent
+##    - name: Delete logstash from etc
+##      file:
+##        path: /etc/logstash
+##        state: absent
 ##      shell: rm -rf /etc/logstash/*
-      
-    - name: Copy the certificates
-      copy:
-        src: /etc/ansible/GIT/Dimko/roles/Logstash/files/certs/
-        dest: /tmp/certs/
+ 
+
+## DA SE ISKOPIRAAT OD /role/file direktrno na lokacijata i 
+## soodvetno na toa da se prasa David dali da se kopiraat vo opt ili etc
+##    - name: Copy the certificates
+##      copy:
+##      src: /opt/ansible/GIT/Dimko/roles/Logstash/files/certs/
+##      dest: /opt/certs/
         
     - name: Install the certificates
       copy:
@@ -100,11 +102,12 @@
         group: logstash
         mode: 0755
         recurse: yes
-        
+
+## Da se prasa David za opt ili etc        
     - name: Copy Logstash Config files
       copy:
-        src: /etc/ansible/GIT/Dimko/roles/Logstash/files/logstash_configs
-        dest: /tmp/logstash/
+        src: logstash_configs/
+        dest: /etc/logstash/
         
         
     - name: Replace LS_SETTINGS_DIR
@@ -139,6 +142,8 @@
         echo "xpack.monitoring.elasticsearch.username: logstash_system" >> logstash.yml
         echo "xpack.monitoring.elasticsearch.password: logstashpass" >> logstash.yml
         /usr/share/logstash/bin/system-install /opt/logstash/startup.options sysv
+        $LS_HOME/bin/system-install $LS_START_UP_OPTIONS_PATH/startup.options sysv
+## Wait on Marjan
 
     - name: Replace KILL_ON_STOP_TIMEOUT
       replace:
@@ -153,13 +158,6 @@
         regexp: "\\$LOGSTASH_MYSQL_PORT"
         replace: "{{LOGSTASH_MYSQL_PORT}}"
         backup: yes
-
-##    - name: Change LOGSTASH_FREVVO_PORT
-##      replace:
-##        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
-##        regexp: "\{{ LOGSTASH_FREVVO_PORT }}"
-##        replace: "{{ LOGSTASH_FREVVO_PORT }}"
-##        backup: yes
 
     - name: Change LOGSTASH_SNOWBOUND_PORT
       replace:
@@ -218,15 +216,15 @@
 ##        sed -i "s|\9200|9200|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_99"
 
             #    $LS_HOME/bin/system-install $LS_START_UP_OPTIONS_PATH/startup.options 
-    - name: Adding LogStash service to autostart
-      service: name=logstash enabled=yes
+##    - name: Adding LogStash service to autostart
+##      service: name=logstash enabled=yes
      
     - name: Adding LogStash to startup.sh & shutdown.sh scripts
       shell: |
         echo '/etc/init.d/logstash start' >> /usr/local/bin/startup.sh
         echo '/etc/init.d/logstash stop' >> /usr/local/bin/shutdown.sh
         
-    - name: Copy logstash config files in te logstast cong.d folder
+    - name: Copy logstash config files in the logstast conf.d folder
       copy:
         src: /tmp/logstash/logstash_configs/
         dest: /opt/logstash/conf.d/
