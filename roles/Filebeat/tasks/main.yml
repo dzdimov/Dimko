@@ -3,10 +3,21 @@
 - hosts: all
   become: sudo
   tasks:
-***DA SE SMENI***
-  - name: Download filebeat
-      shell: wget -q -O $1/$FILEBEAT_PACKAGE --ftp-user=acm --ftp-password=acm ftp://172.27.1.100/$FILEBEAT_PACKAGE
-*******
+    - name: Copy the Filebeat rpm file to the remote host
+      copy:
+        src: "{{ FILEBEAT_PACKAGE }}"
+        dest: /tmp/filebeat/
+      
+    - name: Install the filebeat binary
+      yum:
+        name: /tmp/filebeat/{{ FILEBEAT_PACKAGE }}
+        state: present
+      
+    - name: Delete the filebeat binary
+      file:
+        path: /tmp/filebeat
+        state: absent
+
     - name: Create directories
       file:
         path: /opt/filebeat/{{item}}
@@ -101,10 +112,8 @@
         
     
 
-    
-    - name: Install FILEBEAT_DIR (Pisi lokacija od kade da se instalira)
-      shell: install_filebeat /????/????
-      
+
+
     - name: Copy Filebeat config file - filebeat.yml   ????  (Proveri dali ke go iskopira i preimeni file-ot)
       copy:
         src: "{{ FILEBEAT_ELK_CONFIG_FILE }}"
