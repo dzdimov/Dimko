@@ -18,8 +18,7 @@
 
     - name: Copy the JAVA binary
       copy:
-        src: /etc/ansible/{{ JAVA_PACKAGE }}
-        src: /etc/ansible/jre-8u201-linux-x64.rpm
+        src: {{ JAVA_PACKAGE }}
         dest: /tmp/java/
 
     - name: Install JAVA
@@ -34,7 +33,7 @@
 
     - name: Copy the ElasticSearch binary
       copy:
-        src: /etc/ansible/{{ ELASTICSEARCH_PACKAGE }}
+        src: {{ ELASTICSEARCH_PACKAGE }}
         dest: /tmp/elastic/
 
     - name: Install ElasticSearch
