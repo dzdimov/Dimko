@@ -3,10 +3,6 @@
 - hosts: all
   become: sudo
   tasks:
-##    - name: Copy the binary
-##      copy:
-##        src: /etc/ansible/logstash/certs/
-##        dest: /tmp/logstash/
         
     - name: Create the directories
       file:
@@ -21,7 +17,7 @@
 
     - name: Copy the LogStash binary
       copy: 
-        src: /etc/ansible/logstash/{{ LOGSTASH_PACKAGE }}
+        src: {{ LOGSTASH_PACKAGE }}
         dest: /tmp/logstash/
        
     - name: Install LogStash
@@ -82,12 +78,6 @@
         src: /tmp/certs/ca-chain.cert.pem
         dest: /etc/pki/ca-trust/source/anchors/
         remote_src: yes
-        
-##      shell: |
-##      sudo cp /tmp/certs/acm-elasticsearch-server-client.key.pkcs8 /opt/logstash/private/
-##      sudo cp /tmp/certs/acm-elasticsearch-server-client.cert.pem /opt/logstash/certs/
-##      sudo cp /tmp/certs/ca-chain.cert.pem /opt/logstash/certs/
-##      sudo cp /tmp/certs/ca-chain.cert.pem /etc/pki/ca-trust/source/anchors/
 
     - name: Create trustStore jks file, needed by logstash
       shell: |

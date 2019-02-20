@@ -5,12 +5,9 @@
   tasks:
     - name: Copy the binary
       copy:
-        src: /etc/ansible/kibana/{{ KIBANA_PACKAGE }}
+        src: "{{ KIBANA_PACKAGE }}"
         dest: /tmp/kibana/
-        
-##    - name: Link binaries
-##      shell: ln -s /tmp/../../../bin/$KIBANA_PACKAGE /tmp/$KIBANA_PACKAGE
-  
+
     - name: Create the directories
       file:
         path: /opt/kibana/{{item}}
@@ -24,7 +21,7 @@
       
     - name: Copy certificates to remote machine
       copy:
-        src: /etc/ansible/GIT/Dimko/roles/Kibana/files/certs/
+        src: /certs/
         dest: /tmp/certs/
       
     - name: Copying the certificates 1
@@ -62,7 +59,6 @@
       file:
         path: /usr/share/kibana
         state: absent
-##      shell: rm -rf /usr/share/kibana
       
     - name: Change ownership of opt/kibana
       file:
@@ -79,12 +75,18 @@
         replace: "program=/opt/kibana/bin/kibana"
         backup: yes
 
+        
     - name: Backup default Kibana configuration file
       copy:
         src: /etc/kibana/kibana.yml
         dest: /opt/kibana/config/kibana.yml.backup
         remote_src: yes
-      
+
+    - name: Copy kibana.yml from remote to /opt/kibana
+      copy:
+        src: kibana.yml
+        dest: /opt/kibana/config/
+
     - name: Delete Elasticsearch var/lock/subsys
       file:
         path: /var/lock/subsys/elasticsearch
@@ -92,18 +94,18 @@
         directory_mode: yes
         
     - name: start Elasticsearch
-      service:
-        name=elasticsearch
-        state=started        
+      systemd:
+        name: elasticsearch
+        state: started        
 
     - name: Wait for 90 seconds
       wait_for: timeout=90
       delegate_to: localhost
       
     - name: Start Kibana
-      service:
-        name=kibana
-        state=started
+      systemd:
+        name: kibana
+        state: started
         
     - name: Wait for 60 seconds
       wait_for: timeout=60
@@ -427,13 +429,19 @@
              {"title" : "logstash-*",  "timeFieldName": "@timestamp"}'
       
     - name: Stopping Kibana
-      service: name=kibana state=stopped
+      systemd:
+        name: kibana
+        state: stopped
       
     - name: Stopping Elasticsearch
-      service: name=elasticsearch state=stopped
+      systemd:
+        name: elasticsearch
+        state: stopped
       
     - name: Adding services to auto start
-      service: name=kibana enabled=yes
+      systemd:
+        name: kibana
+        enabled: yes
       
     - name: Adding Kibana to startup.sh and shutdown.sh scripts
       shell: |
