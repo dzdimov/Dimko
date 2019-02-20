@@ -62,7 +62,9 @@
         echo "elasticsearch hard nofile 65536" >> /etc/security/limits.conf
 
     - name: Adding services to auto start
-      service: name=elasticsearch enabled=yes
+      systemd:
+        name: elasticsearch
+        enabled: yes
 
     - name: Adding ElasticSearch to startup.sh & shutdown.sh scripts
       shell: |
@@ -70,7 +72,9 @@
         echo "service elasticsearch stop" >> /usr/local/bin/shutdown.sh
 
     - name: Start ElasticSearch
-      service: name=elasticsearch state=started
+      systemd:
+        name: elasticsearch
+        state: started
 
     - name: Setting index cat script
       shell: |
@@ -106,13 +110,14 @@
         regexp: "\\$ES_PORT"
         replace: "{{ ES_PORT }}"
         backup: yes
-    
-    - name: Replace CONF_DIR    
-      replace:
-        path: /etc/rc.d/init.d/elasticsearch
-        regexp: 'CONF_DIR=\\"/etc/elasticsearch\\"'
-        replace: 'CONF_DIR=\\"/opt/elasticsearch/conf\\"'
-        backup: yes
+
+## Do we need this if we leave the installation in etc instead opt??        
+##    - name: Replace CONF_DIR    
+##      replace:
+##        path: /etc/rc.d/init.d/elasticsearch
+##        regexp: 'CONF_DIR=\\"/etc/elasticsearch\\"'
+##        replace: 'CONF_DIR=\\"/opt/elasticsearch/conf\\"'
+##        backup: yes
 
     - name: Copying ElasticSearch configuration files
       copy:
@@ -138,8 +143,8 @@
         recurse: yes
 
     - name: Start ElasticSearch
-      service: 
-        name: "elasticsearch"
+      systemd: 
+        name: elasticsearch
         state: started
         enabled: yes
 
@@ -161,17 +166,17 @@
       shell: 'curl -XPUT localhost:9200/acm_log_search?pretty -H "Content-Type: application/json" --data-binary @/etc/ansible/acmIndexConfig.json'
 
     - name: Stopping ElasticSearch
-      service:
-        name=elasticsearch
-        state=stopped
+      systemd:
+        name: elasticsearch
+        state: stopped
 
     - name: chmod
 ##    file: dest=opt/elasticsearch/conf/* mode=a+x
       shell: chmod 644 /opt/elasticsearch/conf/*
 
     - name: Passwords for build in accounts ,elastic, kibana, logstash
-      service:
-        name: "elasticsearch"
+      systemd:
+        name: elasticsearch
         state: started
 
     - name: Sleep for 90 seconds
