@@ -52,25 +52,21 @@
       copy:
         src: acm-elasticsearch-server-client.key.pkcs8
         dest: /opt/logstash/private/
-        remote_src: yes
         
     - name: Install the certifites 2
       copy:
         src: acm-elasticsearch-server-client.cert.pem
         dest: /opt/logstash/certs/
-        remote_src: yes
         
     - name: Install the certificates 3
       copy:
         src: ca-chain.cert.pem
         dest: /opt/logstash/certs/
-        remote_src: yes
         
     - name: Install the certificates 4
       copy:
         src: ca-chain.cert.pem
         dest: /etc/pki/ca-trust/source/anchors/
-        remote_src: yes
 
     - name: Create trustStore jks file, needed by logstash
       shell: |
