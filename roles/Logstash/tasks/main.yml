@@ -26,21 +26,6 @@
         path: /tmp/logstash/
         state: absent
 
-## DA SE PRASA DAVID DALI DA OSTANE VO etc      
-    - name: Copy logstash from etc to opt/logstash/
-      copy:
-        src: /etc/logstash/
-        dest: /opt/logstash/
-        remote_src: yes
-      shell: cp -r /etc/logstash/* /opt/logstash/
-      
-##    - name: Delete logstash from etc
-##      file:
-##        path: /etc/logstash
-##        state: absent
-##      shell: rm -rf /etc/logstash/*
- 
-
 ## DA SE ISKOPIRAAT OD /role/file direktrno na lokacijata i 
 ## soodvetno na toa da se prasa David dali da se kopiraat vo opt ili etc
 ##    - name: Copy the certificates
@@ -81,8 +66,7 @@
         group: logstash
         mode: 0755
         recurse: yes
-
-## Da se prasa David za opt ili etc        
+      
     - name: Copy Logstash Config files
       copy:
         src: "{{ item }}:
@@ -109,25 +93,9 @@
     - name: Replace path.config
       replace:
         path: /opt/logstash/logstash.yml
-        regexp: "path.config: /etc/logstash/conf.d"
-        replace: "path.config: /opt/logstash/conf.d"
+        regexp: path.config: /etc/logstash/conf.d
+        replace: path.config: /opt/logstash/conf.d
         backup: yes
-
-        
-## Ask David if this should remain
-    - name: Replace path.logstash
-      replace:
-        path: /opt/logstash/logstash.yml
-        regexp: "path.logs: /var/log/logstash"
-        replace: "path.logs: /opt/logstash/log"
-        backup: yes
-
-## Ask David if this should remain
-    - name: Replace path.data
-      replace:
-        path: /opt/logstash/logstash.yml
-        regexp: "path.data: /var/lib/logstash"
-        replace: "path.data: /opt/logstash/data"
         
     - name: Add username and pass to logstash.yml
       shell: |
