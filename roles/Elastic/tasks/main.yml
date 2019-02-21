@@ -123,13 +123,15 @@
 
     - name: Copying ElasticSearch configuration files
       copy:
-        src: jvm.options
+        src: /etc/elasticsearch/jvm.options
         dest: /opt/elasticsearch/conf
+        remote_src: yes
 
     - name: Copying ElasticSearch configuration files
       copy:
-        src: log4j2.properties
+        src: /etc/elasticsearch/log4j2.properties
         dest: /opt/elasticsearch/conf
+        remote_src: yes
 
     - name: Change the ownership on all files in /opt/elasticsearch/
       file: 
