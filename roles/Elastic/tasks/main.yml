@@ -1,7 +1,5 @@
 ---
 # tasks file for /etc/ansible/roles/elastic
-- hosts: all
-  become: sudo
   tasks:
     - name: Create the directory structure
       file:
