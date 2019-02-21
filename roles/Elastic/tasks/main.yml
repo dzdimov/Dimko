@@ -18,7 +18,7 @@
 
     - name: Copy the JAVA binary
       copy:
-        src: {{ JAVA_PACKAGE }}
+        src: "{{ JAVA_PACKAGE }}"
         dest: /tmp/java/
 
     - name: Install JAVA
@@ -33,7 +33,7 @@
 
     - name: Copy the ElasticSearch binary
       copy:
-        src: {{ ELASTICSEARCH_PACKAGE }}
+        src: "{{ ELASTICSEARCH_PACKAGE }}"
         dest: /tmp/elastic/
 
     - name: Install ElasticSearch
