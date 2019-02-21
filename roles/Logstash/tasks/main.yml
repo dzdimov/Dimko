@@ -13,21 +13,18 @@
 
     - name: Copy the LogStash binary
       copy: 
-        src: {{ LOGSTASH_PACKAGE }}
+        src: "{{ LOGSTASH_PACKAGE }}"
         dest: /tmp/logstash/
        
     - name: Install LogStash
       yum:
         name: /tmp/logstash/{{ LOGSTASH_PACKAGE }}
         state: present
-##      shell: rpm -ivh /tmp/logstash/???
 
     - name: Delete the binary
       file:
         path: /tmp/logstash/
         state: absent
-##      shell: rm -r /tmp/logstash/
-
 
 ## DA SE PRASA DAVID DALI DA OSTANE VO etc      
 ##    - name: Copy logstash from etc to opt/logstash/
@@ -53,25 +50,25 @@
         
     - name: Install the certificates
       copy:
-        src: /tmp/certs/acm-elasticsearch-server-client.key.pkcs8
+        src: acm-elasticsearch-server-client.key.pkcs8
         dest: /opt/logstash/private/
         remote_src: yes
         
     - name: Install the certifites 2
       copy:
-        src: /tmp/certs/acm-elasticsearch-server-client.cert.pem
+        src: acm-elasticsearch-server-client.cert.pem
         dest: /opt/logstash/certs/
         remote_src: yes
         
     - name: Install the certificates 3
       copy:
-        src: /tmp/certs/ca-chain.cert.pem
+        src: ca-chain.cert.pem
         dest: /opt/logstash/certs/
         remote_src: yes
         
     - name: Install the certificates 4
       copy:
-        src: /tmp/certs/ca-chain.cert.pem
+        src: ca-chain.cert.pem
         dest: /etc/pki/ca-trust/source/anchors/
         remote_src: yes
 
