@@ -113,6 +113,8 @@
         replace: "path.config: /opt/logstash/conf.d"
         backup: yes
 
+        
+## Ask David if this should remain
     - name: Replace path.logstash
       replace:
         path: /opt/logstash/logstash.yml
@@ -120,6 +122,7 @@
         replace: "path.logs: /opt/logstash/log"
         backup: yes
 
+## Ask David if this should remain
     - name: Replace path.data
       replace:
         path: /opt/logstash/logstash.yml
@@ -143,42 +146,42 @@
         
     - name: Change LOGSTASH_MYSQL_PORT
       replace:
-        path: /tmp/logstash.logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
         regexp: "\\$LOGSTASH_MYSQL_PORT"
         replace: "{{LOGSTASH_MYSQL_PORT}}"
         backup: yes
 
     - name: Change LOGSTASH_SNOWBOUND_PORT
       replace:
-        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
         regexp: "\\$LOGSTASH_SNOWBOUND_PORT"
         replace: "{{LOGSTASH_SNOWBOUND_PORT}}"
         backup: yes
 
     - name: Change LOGSTASH_PENTAHO_PORT
       replace:
-        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
         regexp: "\\$LOGSTASH_PENTAHO_PORT"
         replace: "{{LOGSTASH_PENTAHO_PORT}}"
         backup: yes
 
     - name: Change ELK_PORT
       replace:
-        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
         regexp: "\\$ELK_PORT"
         replace: "{{ELK_PORT}}"
         backup: yes
 
     - name: Change LOGSTASH_ALF_PORT
       replace:
-        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_01}}
+        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
         regexp: "\\$LOGSTASH_ALF_PORT"
         replace: "{{LOGSTASH_ALF_PORT}}"
         backup: yes
 
     - name: Change ES_PORT
       replace:
-        path: /tmp/logstash/logstash_configs/{{LOGSTASH_CONFIG_FILE_99}}
+        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_99}}
         regexp: "\\$ES_PORT"
         replace: "{{ES_PORT}}"
         backup: yes
@@ -215,7 +218,6 @@
         
     - name: Copy logstash config files in the logstast conf.d folder
       copy:
-        src: /tmp/logstash/logstash_configs/
+        src: /etc/logstash/
         dest: /opt/logstash/conf.d/
-        remote_src: yes
 ##      shell: sudo cp tmp/logstash_configs/*.conf $LOGSTASH_CONF_DIR/
