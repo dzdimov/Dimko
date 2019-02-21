@@ -1,8 +1,5 @@
 ---
 # tasks file for /etc/ansible/GIT/Dimko/roles/Kibana
-- hosts: all
-  become: sudo
-  tasks:
     - name: Copy the binary
       copy:
         src: "{{ KIBANA_PACKAGE }}"

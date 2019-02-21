@@ -1,9 +1,5 @@
 ---
 # tasks file for /etc/ansible/GIT/Dimko/roles/Logstash
-- hosts: all
-  become: sudo
-  tasks:
-        
     - name: Create the directories
       file:
         path: /opt/logstash/{{item}}

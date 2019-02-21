@@ -1,8 +1,5 @@
 ---
 # tasks file for /etc/ansible/GIT/Dimko/roles/Filebeat
-- hosts: all
-  become: sudo
-  tasks:
     - name: Copy the Filebeat rpm file to the remote host
       copy:
         src: "{{ FILEBEAT_PACKAGE }}"
