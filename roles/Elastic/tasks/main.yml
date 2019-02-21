@@ -89,7 +89,7 @@
 
     - name: copy fix-ownership.sh
       copy:
-        src: /etc/ansible/roles/elastic/files/fix-ownership.sh
+        src: fix-ownership.sh
         dest: /usr/local/bin/elasticsearch-setup-passwords
         
     - name: Setting ownership 
