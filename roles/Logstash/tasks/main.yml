@@ -85,8 +85,18 @@
 ## Da se prasa David za opt ili etc        
     - name: Copy Logstash Config files
       copy:
-        src: logstash_configs/
+        src: "{{ item }}:
         dest: /etc/logstash/
+        with_items:
+          - 01-input.conf
+          - 99-output.conf
+          - alfresco.conf
+          - elk.conf
+          - frevvo.conf
+          - mysql.conf
+          - pentaho.conf
+          - snowbound.conf
+          - solr.conf
         
         
     - name: Replace LS_SETTINGS_DIR
