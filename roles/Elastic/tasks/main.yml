@@ -1,6 +1,5 @@
 ---
 # tasks file for /etc/ansible/roles/elastic
-  tasks:
     - name: Create the directory structure
       file:
         path: /opt/elasticsearch/{{item}}
