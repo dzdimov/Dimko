@@ -115,7 +115,7 @@
     - name: Change LOGSTASH_MYSQL_PORT
       replace:
         path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\\$LOGSTASH_MYSQL_PORT"
+        regexp: \\$LOGSTASH_MYSQL_PORT
         replace: "{{LOGSTASH_MYSQL_PORT}}"
         backup: yes
 
