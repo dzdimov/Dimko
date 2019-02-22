@@ -129,29 +129,29 @@
     - name: Change LOGSTASH_PENTAHO_PORT
       replace:
         path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\\$LOGSTASH_PENTAHO_PORT"
-        replace: "{{ LOGSTASH_PENTAHO_PORT }}"
+        regexp: '\\$LOGSTASH_PENTAHO_PORT'
+        replace: '{{ LOGSTASH_PENTAHO_PORT }}'
         backup: yes
 
     - name: Change ELK_PORT
       replace:
         path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\\$ELK_PORT"
-        replace: "{{ ELK_PORT }}"
+        regexp: '\\$ELK_PORT'
+        replace: '{{ ELK_PORT }}'
         backup: yes
 
     - name: Change LOGSTASH_ALF_PORT
       replace:
         path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\\$LOGSTASH_ALF_PORT"
-        replace: "{{ LOGSTASH_ALF_PORT }}"
+        regexp: '\\$LOGSTASH_ALF_PORT'
+        replace: '{{ LOGSTASH_ALF_PORT }}'
         backup: yes
 
     - name: Change ES_PORT
       replace:
         path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_99}}
-        regexp: "\\$ES_PORT"
-        replace: "{{ ES_PORT }}"
+        regexp: '\\$ES_PORT'
+        replace: '{{ ES_PORT }}'
         backup: yes
 ##    - name: Copy logstash_configs
 ##      copy:
