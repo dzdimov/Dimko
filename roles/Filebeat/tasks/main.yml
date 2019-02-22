@@ -120,14 +120,17 @@
         regexp: "\\$ELK_PORT"
         replace: "{{ ELK_PORT }}"
         backup: yes
-        
+
     - name: Change ownership
-      file:
-        dest: '"{{ FILEBEAT_DIR }}"/'
-        owner: filebeat
-        group: filebeat
-        mode: 0755
-        recurse: yes
+      shell: chown -R filebeat.filebeat /opt/filebeat/
+## Why is this failing?        
+##    - name: Change ownership
+##      file:
+##        dest: '"{{ FILEBEAT_DIR }}"/'
+##        owner: filebeat
+##        group: filebeat
+##        mode: 0755
+##        recurse: yes
         
     - name: Delete the default config file for FILEBEAT_DIR
       file:
