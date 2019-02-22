@@ -157,25 +157,7 @@
 ##      copy:
 ##        src: /etc/ansible/GIT/Dimko/roles/Logstash/files/logstash_configs
 ##        dest: /opt/logstash/
-        
-##    - name: Update logstash.yml file
-##      shell: |
-##        sed -i 's/LS_SETTINGS_DIR=\/etc\/logstash/LS_SETTINGS_DIR=\/opt\/logstash/g' /opt/logstash/startup.options
-##        sed -i 's/path.config: \/etc\/logstash\/conf.d/path.config: \/opt\/logstash\/conf.d/g' /opt/logstash/logstash.yml
-##        sed -i 's/path.logs: \/var\/log\/logstash/path.logs: \/opt\/logstash\/log\//g' /opt/logstash/logstash.yml
-##        sed -i 's/path.data: \/var\/lib\/logstash/path.data: \/opt\/logstash\/data\//g' /opt/logstash/logstash.yml
-##        echo "xpack.monitoring.elasticsearch.username: logstash_system" >> logstash.yml
-##        echo "xpack.monitoring.elasticsearch.password: logstashpass" >> logstash.yml
-##        sed -i 's/KILL_ON_STOP_TIMEOUT=0/KILL_ON_STOP_TIMEOUT=1/g' /etc/init.d/logstash
-##        sed -i "s|\5043|5043|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-##        sed -i "s|\5041|5041|g" "$/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-##        sed -i "s|\5040|5040|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-##        sed -i "s|\5039|5039|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-##        sed -i "s|\5044|5044|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-##        sed -i "s|\5042|5042|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_01"
-##        sed -i "s|\9200|9200|g" "/opt/logstash/logstash_configs/$LOGSTASH_CONFIG_FILE_99"
 
-            #    $LS_HOME/bin/system-install $LS_START_UP_OPTIONS_PATH/startup.options 
 ##    - name: Adding LogStash service to autostart
 ##      service: name=logstash enabled=yes
      
