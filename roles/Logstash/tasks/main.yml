@@ -122,8 +122,8 @@
     - name: Change LOGSTASH_SNOWBOUND_PORT
       replace:
         path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
-        regexp: "\\$LOGSTASH_SNOWBOUND_PORT"
-        replace: "{{ LOGSTASH_SNOWBOUND_PORT }}"
+        regexp: '\\$LOGSTASH_SNOWBOUND_PORT'
+        replace: '{{ LOGSTASH_SNOWBOUND_PORT }}'
         backup: yes
 
     - name: Change LOGSTASH_PENTAHO_PORT
