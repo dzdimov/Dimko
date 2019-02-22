@@ -84,21 +84,18 @@
         
     - name: Install certificates for filebeat->logstash tls communication
       copy:
-        src: certs/acm-elasticsearch-server-client.cert.pem
+        src: acm-elasticsearch-server-client.cert.pem
         dest: '"{{ FILEBEAT_DIR }}"/certs/'
-        remote_src: yes
         
     - name: Install certificates for filebeat->logstash tls communication 2
       copy:
-        src: certs/acm-elasticsearch-server-client.key.pem
+        src: acm-elasticsearch-server-client.key.pem
         dest: '"{{ FILEBEAT_DIR }}"/private/'
-        remote_src: yes
         
     - name: Install certificates for filebeat->logstash tls communication 3
       copy:
-        src: certs/ca-chain.cert.pem
+        src: ca-chain.cert.pem
         dest: '"{{ FILEBEAT_DIR }}"/certs/'
-        remote_src: yes
         
     - name: Change ownership
       shell: chown -R filebeat.filebeat $FILEBEAT_DIR/
