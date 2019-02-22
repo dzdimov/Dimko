@@ -71,7 +71,7 @@
       copy:
         src: "/conf/*"
         dest: /etc/logstash/
-
+        force: yes
         
 ## Error when executing with path: /opt since file is in etc        
     - name: Replace LS_SETTINGS_DIR
