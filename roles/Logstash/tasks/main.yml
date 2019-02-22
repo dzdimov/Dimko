@@ -69,18 +69,11 @@
       
     - name: Copy Logstash Config files
       copy:
-        src: "{{ item }}"
+        src: "/conf/{{ item }}"
         dest: /etc/logstash/
-        with_items:
-          - /01-input.conf
-          - /99-output.conf
-          - /alfresco.conf
-          - /elk.conf
-          - /frevvo.conf
-          - /mysql.conf
-          - /pentaho.conf
-          - /snowbound.conf
-          - /solr.conf
+        with_fileglob:
+          - /conf/*
+
         
 ## Error when executing with path: /opt since file is in etc        
     - name: Replace LS_SETTINGS_DIR
