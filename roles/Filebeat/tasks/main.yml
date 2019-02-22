@@ -121,22 +121,21 @@
         replace: "{{ ELK_PORT }}"
         backup: yes
 
-    - name: Change ownership
-      shell: chown -R filebeat.filebeat /opt/filebeat/
-## Why is this failing?        
-##    - name: Change ownership
-##      file:
-##        dest: '"{{ FILEBEAT_DIR }}"/'
-##        owner: filebeat
-##        group: filebeat
-##        mode: 0755
-##        recurse: yes
+## Why is this failing? ***Temporary removed***    
+#    - name: Change ownership
+#      file:
+#       dest: '"{{ FILEBEAT_DIR }}"/'
+#       owner: filebeat
+#       group: filebeat
+#       mode: 0755
+#       recurse: yes
         
     - name: Delete the default config file for FILEBEAT_DIR
       file:
         path: '"{{ FILEBEAT_CONF_DIR }}"/filebeat.yml'
         state: absent
-        
+
+## Should this remain or the dir needs to be {{FILEBEAT_CONF_DIR}}/conf.d        
     - name: Create filebeat_conf directory
       file:
         path: '"{{ FILEBEAT_CONF_DIR }}"/conf.d/filebeat'
