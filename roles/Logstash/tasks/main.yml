@@ -69,10 +69,8 @@
       
     - name: Copy Logstash Config files
       copy:
-        src: "/conf/{{ item }}"
+        src: "/conf/*"
         dest: /etc/logstash/
-        with_fileglob:
-          - /conf/*
 
         
 ## Error when executing with path: /opt since file is in etc        
