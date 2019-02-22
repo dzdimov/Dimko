@@ -108,8 +108,8 @@
     - name: Replace KILL_ON_STOP_TIMEOUT
       replace:
         path: /etc/init.d/logstash
-        regexp: "KILL_ON_STOP_TIMEOUT=0"
-        replace: "KILL_ON_STOP_TIMEOUT=1"
+        regexp: KILL_ON_STOP_TIMEOUT=0
+        replace: KILL_ON_STOP_TIMEOUT=1
         backup: yes
         
     - name: Change LOGSTASH_MYSQL_PORT
