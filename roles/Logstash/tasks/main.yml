@@ -93,8 +93,8 @@
     - name: Replace path.config
       replace:
         path: /opt/logstash/logstash.yml
-        regexp: path.config: /etc/logstash/conf.d
-        replace: path.config: /opt/logstash/conf.d
+        regexp: 'path.config: /etc/logstash/conf.d'
+        replace: 'path.config: /opt/logstash/conf.d'
         backup: yes
         
     - name: Add username and pass to logstash.yml
