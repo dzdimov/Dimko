@@ -169,4 +169,4 @@
     - name: Copy logstash config files in the logstast conf.d folder
       copy:
         src: /etc/logstash/
-        dest: /opt/logstash/conf.d/
+        dest: /opt/logstash/conf.d
