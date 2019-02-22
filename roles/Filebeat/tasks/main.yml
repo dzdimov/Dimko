@@ -23,10 +23,11 @@
       with_items:
       - /private
       - /certs
-      
-    - name: Installing filebeat
-      shell: |
-        tar xvzf $1/$FILEBEAT_PACKAGE -C /opt/filebeat --strip-components=1
+
+## Do we need this?      
+##    - name: Installing filebeat
+##      shell: |
+##        tar xvzf $1/$FILEBEAT_PACKAGE -C /opt/filebeat --strip-components=1
      
     - name: Copy filebeat-sc
       copy:
@@ -54,11 +55,11 @@
       
     - name: Setting password for FileBeat user
       shell: |
-        echo -e "{{ FILEBEAT_SERVICE_PASS }}\n{{ FILEBEAT_SERVICE_PASS }}" | passwd {{ FILEBEAT_SERVICE_USER }}
+        echo -e "F!l3B3@T4AcMd3v$\nF!l3B3@T4AcMd3v$" | passwd filebeat
       
     - name: Unset
       shell: |    
-        unset "{{ FILEBEAT_SERVICE_PASS }}"
+        unset F!l3B3@T4AcMd3v$
       
     - name: Setting ownership for FileBeat user to filebeat directory
       file:
