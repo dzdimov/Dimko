@@ -170,4 +170,3 @@
       copy:
         src: /etc/logstash/
         dest: /opt/logstash/conf.d/
-##      shell: sudo cp tmp/logstash_configs/*.conf $LOGSTASH_CONF_DIR/
