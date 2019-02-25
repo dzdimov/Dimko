@@ -75,14 +75,14 @@
 ## Error when executing with path: /opt since file is in etc        
     - name: Replace LS_SETTINGS_DIR
       replace:
-        path: /opt/logstash/startup.options
+        path: /etc/logstash/startup.options
         regexp: LS_SETTINGS_DIR=/etc/logstash
         replace: LS_SETTINGS_DIR=/opt/logstash
         backup: yes
 
     - name: Replace path.config
       replace:
-        path: /opt/logstash/logstash.yml
+        path: /etc/logstash/logstash.yml
         regexp: 'path.config: /etc/logstash/conf.d'
         replace: 'path.config: /opt/logstash/conf.d'
         backup: yes
