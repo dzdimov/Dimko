@@ -126,6 +126,7 @@
         recurse: yes
         
     - name: Delete the default config file for FILEBEAT_DIR
+      file:
         path: '"{{ FILEBEAT_CONF_DIR }}"/filebeat.yml'
         state: absent
 
