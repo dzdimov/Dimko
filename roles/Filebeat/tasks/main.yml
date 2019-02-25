@@ -96,13 +96,6 @@
       copy:
         src: ca-chain.cert.pem
         dest: '"{{ FILEBEAT_DIR }}"/certs/'
-        
-    - name: Change ownership
-      file:
-        path: "{{ FILEBEAT_DIR }}"
-        owner: filebeat
-        group: filebeat
-        recurse: yes
       
     - name: Adding filebeat to startup and shutdown scripts
       shell: |
@@ -128,16 +121,12 @@
 # Why is this failing? ***Temporary removed***    
     - name: Change ownership
       file:
-        become: true
         dest: '"{{ FILEBEAT_DIR }}"/'
         owner: filebeat
         group: filebeat
-        mode: 0755
         recurse: yes
         
     - name: Delete the default config file for FILEBEAT_DIR
-      file:
-        become: true
         path: '"{{ FILEBEAT_CONF_DIR }}"/filebeat.yml'
         state: absent
 
