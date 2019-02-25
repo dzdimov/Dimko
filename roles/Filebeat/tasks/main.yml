@@ -118,7 +118,6 @@
         replace: "{{ ELK_PORT }}"
         backup: yes
 
-# Why is this failing? ***Temporary removed***    
     - name: Change ownership
       file:
         dest: '"{{ FILEBEAT_DIR }}"/'
