@@ -18,7 +18,7 @@
       
     - name: Copy certificates to remote machine
       copy:
-        src: /certs/
+        src: certs/
         dest: /tmp/certs/
       
     - name: Copying the certificates 1
