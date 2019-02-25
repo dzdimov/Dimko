@@ -151,62 +151,62 @@
         
     - name: Change the LOGSTASH_FREVVO_PORT
       replace:
-        path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_FREVVO_CONFIG_FILE }}"'
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_FREVVO_CONFIG_FILE }}'
         regexp: "//$LOGSTASH_FREVVO_PORT"
         replace: "{{ LOGSTASH_FREVVO_PORT }}"
         backup: yes
         
     - name: Change the ALF_HOME
       replace:
-        path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_ALF_CONFIG_FILE }}"'
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_ALF_CONFIG_FILE }}'
         regexp: "//$ALF_HOME"
         replace: "{{ ALF_HOME }}"
         backup: yes
         
     - name: Change the LOGSTASH_ALF_PORT
       replace:
-        path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_ALF_CONFIG_FILE }}"'
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_ALF_CONFIG_FILE }}'
         regexp: "//$LOGSTASH_ALF_PORT"
         replace: "{{ LOGSTASH_ALF_PORT }}"
         backup: yes
         
     - name: Change the PENTAHO_HOME
       replace:
-        path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_PENTAHO_CONFIG_FILE }}"'
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_PENTAHO_CONFIG_FILE }}'
         regexp: "//$PENTAHO_HOME"
         replace: "{{ PENTAHO_HOME }}"
         backup: yes
         
     - name: Chenge the LOGSTASH_PENTAHO_PORT
       replace:
-        path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_PENTAHO_CONFIG_FILE }}"'
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_PENTAHO_CONFIG_FILE }}'
         regexp: "//$LOGSTASH_PENTAHO_PORT"
         replace: "{{ LOGSTASH_PENTAHO_PORT }}"
         backup: yes
         
     - name: Change the SNOWBOUND_HOME
       replace:
-        path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_SNOWBOUND_CONFIG_FILE }}"'
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_SNOWBOUND_CONFIG_FILE }}'
         regexp: "//$SNOWBOUND_HOME"
         replace: "{{ SNOWBOUND_HOME }}"
         backup: yes
         
     - name: Change the LOGSTASH_SNOWBOUND_PORT
       replace:
-        path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_SNOWBOUND_CONFIG_FILE }}"'
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_SNOWBOUND_CONFIG_FILE }}'
         regexp: "//$LOGSTASH_SNOWBOUND_PORT"
         replace: "{{ LOGSTASH_SNOWBOUND_PORT }}"
         
     - name: Change the MYSQL_HOME
       replace:
-        path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_MYSQL_CONFIG_FILE }}"'
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_MYSQL_CONFIG_FILE }}'
         regexp: "//$MYSQL_HOME"
         replace: "{{ MYSQL_HOME }}"
         backup: yes
         
     - name: Change the LOGSTASH_MYSQL_PORT
       replace:
-        path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_MYSQL_CONFIG_FILE }}"'
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_MYSQL_CONFIG_FILE }}'
         regexp: "//$LOGSTASH_MYSQL_PORT"
         replace: "{{ LOGSTASH_MYSQL_PORT }}"
         backup: yes
