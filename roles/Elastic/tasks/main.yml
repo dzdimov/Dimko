@@ -101,12 +101,7 @@
         dest: /opt/elasticsearch/conf/elasticsearch.yml.back
         remote_src: yes           
 
-    - name: Replace ES_PORT
-      replace:
-        path: /etc/elasticsearch/elasticsearch.yml
-        regexp: "\\$ES_PORT"
-        replace: "{{ ES_PORT }}"
-        backup: yes
+
 
 ## Do we need this if we leave the installation in etc instead opt??        
 ##    - name: Replace CONF_DIR    
@@ -120,6 +115,13 @@
       copy:
         src: elasticsearch.yml
         dest: /opt/elasticsearch/conf
+
+    - name: Replace ES_PORT
+      replace:
+        path: /opt/elasticsearch/conf/elasticsearch.yml
+        regexp: "\\$ES_PORT"
+        replace: "{{ ES_PORT }}"
+        backup: yes
 
     - name: Copying ElasticSearch configuration files
       copy:
