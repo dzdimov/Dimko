@@ -1,5 +1,6 @@
 ---
 # tasks file for /etc/ansible/GIT/Dimko/roles/Logstash
+# Ask David if the path should be opt or etc?
     - name: Create the directories
       file:
         path: /opt/logstash/{{item}}
@@ -162,8 +163,3 @@
       shell: |
         echo '/etc/init.d/logstash start' >> /usr/local/bin/startup.sh
         echo '/etc/init.d/logstash stop' >> /usr/local/bin/shutdown.sh
-        
-    - name: Copy logstash config files in the logstast conf.d folder
-      copy:
-        src: /etc/logstash/
-        dest: /opt/logstash/conf.d/
