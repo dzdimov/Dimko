@@ -144,7 +144,7 @@
         
     - name: Change the FREVVO_LOG_PATH
       replace:
-        path: '"{{ FILEBEAT_DIR }}"/conf.d/"{{ FILEBEAT_FREVVO_CONFIG_FILE }}"'
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_FREVVO_CONFIG_FILE }}'
         regexp: "//$FREVVO_LOG_PATH"
         replace: "{{ FREVVO_LOG_PATH }}"
         backup: yes
