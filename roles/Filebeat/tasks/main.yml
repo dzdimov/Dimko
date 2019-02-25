@@ -100,7 +100,7 @@
     - name: Change ownership
       file:
         path: "{{ FILEBEAT_DIR }}"
-        user: filebeat
+        owner: filebeat
         group: filebeat
         recurse: yes
       
