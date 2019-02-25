@@ -98,7 +98,11 @@
         dest: '"{{ FILEBEAT_DIR }}"/certs/'
         
     - name: Change ownership
-      shell: chown -R filebeat.filebeat $FILEBEAT_DIR/
+      file:
+        path: {{ FILEBEAT_DIR }}
+        user: filebeat
+        group: filebeat
+        recurse: yes
       
     - name: Adding filebeat to startup and shutdown scripts
       shell: |
