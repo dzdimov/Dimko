@@ -139,7 +139,7 @@
         
     - name: Copy the config files
       copy:
-        src: /filebeat_configs/
+        src: filebeat_configs/
         dest: '"{{ FILEBEAT_DIR }}"/conf.d/'
         
     - name: Change the FREVVO_LOG_PATH
