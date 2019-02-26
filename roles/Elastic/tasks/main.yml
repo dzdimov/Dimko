@@ -226,7 +226,7 @@
             
     - name: kibanapass
       uri:
-        url:localhost:9200/_xpack/security/user/kibana/_password?pretty
+        url: http://localhost:9200/_xpack/security/user/kibana/_password?pretty
         method: POST
         user: elastic
         pass: elasticpass
@@ -240,7 +240,7 @@
             
     - name: logstashpass
       uri:
-        url: localhost:9200/_xpack/security/user/logstash_system/_password?pretty
+        url: http://localhost:9200/_xpack/security/user/logstash_system/_password?pretty
         method: POST
         user: elastic
         pass: elasticpass
