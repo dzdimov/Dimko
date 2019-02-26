@@ -108,7 +108,7 @@
       wait_for: timeout=60
       delegate_to: localhost
       
-    - name: Execute CURL
+    - name: Execute CURL 1
       uri:
         url: http://localhost:9200/.kibana/_settings?pretty
         method: PUT
@@ -116,13 +116,13 @@
         pass: elasticsearch
         headers:
           Content-Type: "application/json"
-        body: "{ 'index.blocks.write': true }"
+        src: file.json
 #      shell: 'curl -XPUT -u elastic:elasticsearch localhost:9200/.kibana/_settings?pretty -H "Content-Type: application/json" -d
 #             {
 #               "index.blocks.write": true
 #             }'
     
-    - name: Execute CURL 
+    - name: Execute CURL 2
       uri:
         url: http://localhost:9200/.kibana-6?pretty
         method: PUT
@@ -397,7 +397,7 @@
    # }
  # }'
  
-    - name: Curl 2
+    - name: Curl 3
       uri:
         url: http://localhost:9200/_reindex?pretty
         method: POST
@@ -421,7 +421,7 @@
                # }
              # }'
              
-    - name: Curl 3
+    - name: Curl 4
       uri:
         url: http://localhost:9200/_aliases?pretty
         method: POST
@@ -438,7 +438,7 @@
                  # ]
                  # }'
                  
-    - name: Curl 4
+    - name: Curl 5
       uri:
         url: http://localhost:9200/logstash-0?pretty
         method: PUT
