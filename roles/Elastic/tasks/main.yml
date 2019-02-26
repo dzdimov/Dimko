@@ -154,17 +154,34 @@
       delegate_to: localhost
 
     - name: Configuring elsaticsearch for acm_advanced_search
-##      uri:
-##        url: http://localhost:9200/acm_advanced_search?pretty
-##        method: PUT
-##        Content-Type: "application/json"        
-##      shell: 'curl -XPUT localhost:9200/acm_advanced_search?pretty -H "Content-Type: application/json" --data-binary @/etc/ansible/acmIndexConfig.json'
-      shell: 'curl -XPUT localhost:9200/acm_advanced_search?pretty -H "Content-Type: application/json" --data-binary @/etc/elasticsearch/acmIndexConfig.json'  
+      uri:
+        url: localhost:9200/acm_advanced_search?pretty
+        method: PUT
+        headers:
+          Content-Type: "application/json"
+        src: /etc/elasticsearch/acmIndexConfig.json
+        
+#      shell: 'curl -XPUT localhost:9200/acm_advanced_search?pretty -H "Content-Type: application/json" --data-binary @/etc/elasticsearch/acmIndexConfig.json'
+      
     - name: Configuring elsaticsearch for acm_quick_search
-      shell: 'curl -XPUT localhost:9200/acm_quick_search?pretty -H "Content-Type: application/json" --data-binary @$/etc/ansible/acmIndexConfig.json'
+      uri:
+        url: localhost:9200/acm_quick_search?pretty
+        method: PUT
+        headers:
+          Content-Type: "application/json"
+        src: /etc/ansible/acmIndexConfig.json
+               
+#      shell: 'curl -XPUT localhost:9200/acm_quick_search?pretty -H "Content-Type: application/json" --data-binary @$/etc/ansible/acmIndexConfig.json'
 
     - name: Configuring elsaticsearch for acm_log_search
-      shell: 'curl -XPUT localhost:9200/acm_log_search?pretty -H "Content-Type: application/json" --data-binary @/etc/ansible/acmIndexConfig.json'
+      uri:
+        url: localhost:9200/acm_log_search?pretty
+        method: PUT
+        headers:
+          Content-Type: "application/json"
+        src: /etc/ansible/acmIndexConfig.json
+        
+#      shell: 'curl -XPUT localhost:9200/acm_log_search?pretty -H "Content-Type: application/json" --data-binary @/etc/ansible/acmIndexConfig.json'
 
     - name: Stopping ElasticSearch
       systemd:
@@ -188,23 +205,54 @@
       shell: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b -v > passwords
       ignore_errors: true
 
+    - name: Get Elastic password
+        shell: grep "PASSWORD elastic = " /passwords | awk '{print $4}'
+        register: elasticpassword    
+      
     - name: elasticpass
-      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
-        {
-          "password": "kibanapass"
-        }'
+      uri:
+        url: localhost:9200/_xpack/security/user/elastic/_password?pretty
+        method: POST
+        user: elastic
+        pass: "{{ elasticpassword.stdout }}"
+        headers:
+          Content-Type: "application/json"
+        body: "{
+          "password": "elasticpass"
+        }"
+        
+#      shell: 'curl -XPOST -u elastic:`grep "PASSWORD elastic = " /passwords | awk '{print $4}'` localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
+#        {
+#          "password": "elasticpass"
+#        }'
         
     - name: kibanapass
-      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
-        {
-          "password": "kibanapass"
-        }'
+      uri:
+        url:localhost:9200/_xpack/security/user/kibana/_password?pretty
+        method: POST
+        user: elastic
+        pass: elasticpass
+        headers:
+          Content-Type: "application/json"
+        body: "{ "password": "kibanapass" }"
+#      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
+#        {
+#          "password": "kibanapass"
+#        }'
         
     - name: logstashpass
-      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/logstash_system/_password?pretty -H "Content-Type: application/json" -d
-        {
-          "password": "logstashpass"
-        }'
+      uri:
+        url: localhost:9200/_xpack/security/user/logstash_system/_password?pretty
+        method: POST
+        user: elastic
+        pass: elasticpass
+        headers:
+          Content-Type: "application/json"
+        body: "{ "password": "logstashpass" }"
+#      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/logstash_system/_password?pretty -H "Content-Type: application/json" -d
+#        {
+#          "password": "logstashpass"
+#        }'
 
     - name: Remove passwords
       shell: rm /passwords -f
