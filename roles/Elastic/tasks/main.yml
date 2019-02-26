@@ -1,105 +1,105 @@
-    ---
+---
     # tasks file for /etc/ansible/roles/elastic
-        - name: Create the directory structure 
-          file:
-            path: /opt/elasticsearch/{{item}}
-            state: directory
-            mode: 0755
-          with_items: 
-          - /certs
-          - /data
-          - /logs
-          - /private
-          - /conf
-          - /conf/scripts
+    - name: Create the directory structure 
+      file:
+        path: /opt/elasticsearch/{{item}}
+        state: directory
+        mode: 0755
+      with_items: 
+      - /certs
+      - /data
+      - /logs
+      - /private
+      - /conf
+      - /conf/scripts
 
-        - name: Copy the JAVA binary
-          copy:
-            src: "{{ JAVA_PACKAGE }}"
-            dest: /tmp/java/
+    - name: Copy the JAVA binary
+      copy:
+        src: "{{ JAVA_PACKAGE }}"
+        dest: /tmp/java/
 
-        - name: Install JAVA
-          yum:
-            name: /tmp/java/{{ JAVA_PACKAGE }}
-            state: present
+    - name: Install JAVA
+      yum:
+        name: /tmp/java/{{ JAVA_PACKAGE }}
+        state: present
 
-        - name: Delete the java rpm file
-          file:
-            path: /tmp/java
-            state: absent
+    - name: Delete the java rpm file
+      file:
+        path: /tmp/java
+        state: absent
 
-        - name: Copy the ElasticSearch binary
-          copy:
-            src: "{{ ELASTICSEARCH_PACKAGE }}"
-            dest: /tmp/elastic/
+    - name: Copy the ElasticSearch binary
+      copy:
+        src: "{{ ELASTICSEARCH_PACKAGE }}"
+        dest: /tmp/elastic/
 
-        - name: Install ElasticSearch
-          yum:
-            name: /tmp/elastic/{{ ELASTICSEARCH_PACKAGE  }}
-            state: present
+    - name: Install ElasticSearch
+      yum:
+        name: /tmp/elastic/{{ ELASTICSEARCH_PACKAGE  }}
+        state: present
 
-        - name: Delete the ElasticSearch rpm file
-          file:
-            path: /tmp/elastic
-            state: absent
+    - name: Delete the ElasticSearch rpm file
+      file:
+        path: /tmp/elastic
+        state: absent
 
-        - name: Change the ownership on all files in /opt/elasticsearch/
-          file: 
-            dest: /opt/elasticsearch/
-            owner: elasticsearch
-            group: elasticsearch
-            mode: 0755
-            recurse: yes
+    - name: Change the ownership on all files in /opt/elasticsearch/
+      file: 
+        dest: /opt/elasticsearch/
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0755
+        recurse: yes
 
-        - name: Setting max open files for elasticsearch user
-          shell: |
-            echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
-            echo "elasticsearch hard nproc 4096" >> /etc/security/limits.conf
-            echo "elasticsearch soft nofile 65536" >> /etc/security/limits.conf
-            echo "elasticsearch hard nofile 65536" >> /etc/security/limits.conf
+    - name: Setting max open files for elasticsearch user
+      shell: |
+        echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
+        echo "elasticsearch hard nproc 4096" >> /etc/security/limits.conf
+        echo "elasticsearch soft nofile 65536" >> /etc/security/limits.conf
+        echo "elasticsearch hard nofile 65536" >> /etc/security/limits.conf
 
-        - name: Adding services to auto start
-          systemd:
-            name: elasticsearch
-            enabled: yes
+    - name: Adding services to auto start
+      systemd:
+        name: elasticsearch
+        enabled: yes
 
-        - name: Adding ElasticSearch to startup.sh & shutdown.sh scripts
-          shell: |
-            echo "service elasticsearch start" >> /usr/local/bin/startup.sh
-            echo "service elasticsearch stop" >> /usr/local/bin/shutdown.sh
+    - name: Adding ElasticSearch to startup.sh & shutdown.sh scripts
+      shell: |
+        echo "service elasticsearch start" >> /usr/local/bin/startup.sh
+        echo "service elasticsearch stop" >> /usr/local/bin/shutdown.sh
 
-        - name: Start ElasticSearch
-          systemd:
-            name: elasticsearch
-            state: started
+    - name: Start ElasticSearch
+      systemd:
+        name: elasticsearch
+        state: started
 
-        - name: Setting index cat script
-          shell: |
-            echo "curl 'localhost:9200/_cat/indices?v'" >> /usr/local/bin/escat-index
+    - name: Setting index cat script
+      shell: |
+        echo "curl 'localhost:9200/_cat/indices?v'" >> /usr/local/bin/escat-index
 
-        - name: Setting permision
-          file: dest=/usr/local/bin/escat-index mode=a+x
+    - name: Setting permision
+      file: dest=/usr/local/bin/escat-index mode=a+x
 
-        - name: Setting node cat script
-          shell: |
-            echo "curl 'localhost:9200/_cat/nodes?v'" >> /usr/local/bin/escat-node
+    - name: Setting node cat script
+      shell: |
+        echo "curl 'localhost:9200/_cat/nodes?v'" >> /usr/local/bin/escat-node
 
-        - name: Setting permision
-          file: dest=/usr/local/bin/escat-node mode=a+x
+    - name: Setting permision
+      file: dest=/usr/local/bin/escat-node mode=a+x
 
-        - name: copy fix-ownership.sh
-          copy:
-            src: fix-ownership.sh
-            dest: /usr/local/bin/elasticsearch-setup-passwords
+    - name: copy fix-ownership.sh
+      copy:
+        src: fix-ownership.sh
+        dest: /usr/local/bin/elasticsearch-setup-passwords
             
-        - name: Setting ownership 
-          shell: echo "/usr/local/bin/fix-ownership.sh" >> /usr/local/bin/startup.sh
+    - name: Setting ownership 
+      shell: echo "/usr/local/bin/fix-ownership.sh" >> /usr/local/bin/startup.sh
 
-        - name: Backup the default ElasticSearch configuration file
-          copy:
-            src: /etc/elasticsearch/elasticsearch.yml
-            dest: /opt/elasticsearch/conf/elasticsearch.yml.back
-            remote_src: yes           
+    - name: Backup the default ElasticSearch configuration file
+      copy:
+        src: /etc/elasticsearch/elasticsearch.yml
+        dest: /opt/elasticsearch/conf/elasticsearch.yml.back
+        remote_src: yes           
 
 
 
@@ -111,148 +111,146 @@
     ##        replace: 'CONF_DIR=\\"/opt/elasticsearch/conf\\"'
     ##        backup: yes
 
-        - name: Copying ElasticSearch configuration files
-          copy:
-            src: elasticsearch.yml
-            dest: /opt/elasticsearch/conf
+    - name: Copying ElasticSearch configuration files
+      copy:
+        src: elasticsearch.yml
+        dest: /opt/elasticsearch/conf
 
-        - name: Replace ES_PORT
-          replace:
-            path: /opt/elasticsearch/conf/elasticsearch.yml
-            regexp: "\\$ES_PORT"
-            replace: "{{ ES_PORT }}"
-            backup: yes
+    - name: Replace ES_PORT
+      replace:
+        path: /opt/elasticsearch/conf/elasticsearch.yml
+        regexp: "\\$ES_PORT"
+        replace: "{{ ES_PORT }}"
+        backup: yes
 
-        - name: Copying ElasticSearch configuration files
-          copy:
-            src: /etc/elasticsearch/jvm.options
-            dest: /opt/elasticsearch/conf
-            remote_src: yes
+    - name: Copying ElasticSearch configuration files
+      copy:
+        src: /etc/elasticsearch/jvm.options
+        dest: /opt/elasticsearch/conf
+        remote_src: yes
 
-        - name: Copying ElasticSearch configuration files
-          copy:
-            src: /etc/elasticsearch/log4j2.properties
-            dest: /opt/elasticsearch/conf
-            remote_src: yes
+    - name: Copying ElasticSearch configuration files
+      copy:
+        src: /etc/elasticsearch/log4j2.properties
+        dest: /opt/elasticsearch/conf
+        remote_src: yes
 
-        - name: Change the ownership on all files in /opt/elasticsearch/
-          file: 
-            dest: /opt/elasticsearch/
-            owner: elasticsearch
-            group: elasticsearch
-            mode: 0755
-            recurse: yes
+    - name: Change the ownership on all files in /opt/elasticsearch/
+      file: 
+        dest: /opt/elasticsearch/
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0755
+        recurse: yes
 
-        - name: Start ElasticSearch
-          systemd: 
-            name: elasticsearch
-            state: started
-            enabled: yes
+    - name: Start ElasticSearch
+      systemd: 
+        name: elasticsearch
+        state: started
+        enabled: yes
 
-        - name: Wait for 90 seconds for elasticsearch to become responsive...
-          wait_for: timeout=90
-          delegate_to: localhost
+    - name: Wait for 90 seconds for elasticsearch to become responsive...
+      wait_for: timeout=90
+      delegate_to: localhost
 
-        - name: Configuring elsaticsearch for acm_advanced_search
-          uri:
-            url: localhost:9200/acm_advanced_search?pretty
-            method: PUT
-            headers:
-              Content-Type: "application/json"
-            src: /etc/elasticsearch/acmIndexConfig.json
-            
+    - name: Configuring elsaticsearch for acm_advanced_search
+      uri:
+        url: localhost:9200/acm_advanced_search?pretty
+        method: PUT
+        headers:
+          Content-Type: "application/json"
+        src: /etc/elasticsearch/acmIndexConfig.json
+           
     #      shell: 'curl -XPUT localhost:9200/acm_advanced_search?pretty -H "Content-Type: application/json" --data-binary @/etc/elasticsearch/acmIndexConfig.json'
           
-        - name: Configuring elsaticsearch for acm_quick_search
-          uri:
-            url: localhost:9200/acm_quick_search?pretty
-            method: PUT
-            headers:
-              Content-Type: "application/json"
-            src: /etc/ansible/acmIndexConfig.json
+    - name: Configuring elsaticsearch for acm_quick_search
+      uri:
+        url: localhost:9200/acm_quick_search?pretty
+        method: PUT
+        headers:
+          Content-Type: "application/json"
+        src: /etc/ansible/acmIndexConfig.json
                    
     #      shell: 'curl -XPUT localhost:9200/acm_quick_search?pretty -H "Content-Type: application/json" --data-binary @$/etc/ansible/acmIndexConfig.json'
 
-        - name: Configuring elsaticsearch for acm_log_search
-          uri:
-            url: localhost:9200/acm_log_search?pretty
-            method: PUT
-            headers:
-              Content-Type: "application/json"
-            src: /etc/ansible/acmIndexConfig.json
+    - name: Configuring elsaticsearch for acm_log_search
+      uri:
+        url: localhost:9200/acm_log_search?pretty
+        method: PUT
+        headers:
+          Content-Type: "application/json"
+        src: /etc/ansible/acmIndexConfig.json
             
     #      shell: 'curl -XPUT localhost:9200/acm_log_search?pretty -H "Content-Type: application/json" --data-binary @/etc/ansible/acmIndexConfig.json'
 
-        - name: Stopping ElasticSearch
-          systemd:
-            name: elasticsearch
-            state: stopped
+    - name: Stopping ElasticSearch
+      systemd:
+        name: elasticsearch
+        state: stopped
 
-        - name: chmod
+    - name: chmod
     ##    file: dest=opt/elasticsearch/conf/* mode=a+x
-          shell: chmod 644 /opt/elasticsearch/conf/*
+      shell: chmod 644 /opt/elasticsearch/conf/*
 
-        - name: Passwords for build in accounts ,elastic, kibana, logstash
-          systemd:
-            name: elasticsearch
-            state: started
+    - name: Passwords for build in accounts ,elastic, kibana, logstash
+      systemd:
+        name: elasticsearch
+        state: started
 
-        - name: Sleep for 90 seconds
-          wait_for: timeout=90
-          delegate_to: localhost
+    - name: Sleep for 90 seconds
+      wait_for: timeout=90
+      delegate_to: localhost
             
-        - name: Generate ELK Passwords
-          shell: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b -v > passwords
-          ignore_errors: true
+    - name: Generate ELK Passwords
+      shell: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b -v > passwords
+      ignore_errors: true
 
-        - name: Get Elastic password
-          shell: grep "PASSWORD elastic = " /passwords | awk '{print $4}'
-          register: elasticpassword    
+    - name: Get Elastic password
+      shell: grep "PASSWORD elastic = " /passwords | awk '{print $4}'
+      register: elasticpassword    
           
-        - name: elasticpass
-          uri:
-            url: http://localhost:9200/_xpack/security/user/elastic/_password?pretty
-            method: POST
-            user: elastic
-            pass: "{{ elasticpassword.stdout }}"
-            headers:
-              Content-Type: "application/json"
-            body: "{
-              "password": "elasticpass"
-            }"
+    - name: elasticpass
+      uri:
+        url: http://localhost:9200/_xpack/security/user/elastic/_password?pretty
+        method: POST
+        user: elastic
+        pass: "{{ elasticpassword.stdout }}"
+        headers:
+          Content-Type: "application/json"
+        body: "{ "password": "elasticpass" }"
             
     #      shell: 'curl -XPOST -u elastic:`grep "PASSWORD elastic = " /passwords | awk '{print $4}'` localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
     #        {
     #          "password": "elasticpass"
     #        }'
             
-        - name: kibanapass
-          uri:
-            url:localhost:9200/_xpack/security/user/kibana/_password?pretty
-            method: POST
-            user: elastic
-            pass: elasticpass
-            headers:
-              Content-Type: "application/json"
-            body: "{ "password": "kibanapass" }"
+    - name: kibanapass
+      uri:
+        url:localhost:9200/_xpack/security/user/kibana/_password?pretty
+        method: POST
+        user: elastic
+        pass: elasticpass
+        headers:
+          Content-Type: "application/json"
+        body: "{ "password": "kibanapass" }"
     #      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
     #        {
     #          "password": "kibanapass"
     #        }'
             
-        - name: logstashpass
-          uri:
-            url: localhost:9200/_xpack/security/user/logstash_system/_password?pretty
-            method: POST
-            user: elastic
-            pass: elasticpass
-            headers:
-              Content-Type: "application/json"
-            body: "{ "password": "logstashpass" }"
+    - name: logstashpass
+      uri:
+        url: localhost:9200/_xpack/security/user/logstash_system/_password?pretty
+        method: POST
+        user: elastic
+        pass: elasticpass
+        headers:
+          Content-Type: "application/json"
+        body: "{ "password": "logstashpass" }"
     #      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/logstash_system/_password?pretty -H "Content-Type: application/json" -d
     #        {
     #          "password": "logstashpass"
     #        }'
 
-        - name: Remove passwords
-          shell: rm /passwords -f
+    - name: Remove passwords
+      shell: rm /passwords -f
