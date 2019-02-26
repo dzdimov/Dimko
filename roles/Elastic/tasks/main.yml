@@ -232,7 +232,7 @@
         pass: elasticpass
         headers:
           Content-Type: "application/json"
-        body: "{ "password": "kibanapass" }"
+        body: "{ 'password': 'kibanapass' }"
     #      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
     #        {
     #          "password": "kibanapass"
@@ -246,7 +246,7 @@
         pass: elasticpass
         headers:
           Content-Type: "application/json"
-        body: "{ "password": "logstashpass" }"
+        body: "{ 'password': 'logstashpass' }"
     #      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/logstash_system/_password?pretty -H "Content-Type: application/json" -d
     #        {
     #          "password": "logstashpass"
