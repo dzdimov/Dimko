@@ -217,7 +217,7 @@
         pass: "{{ elasticpassword.stdout }}"
         headers:
           Content-Type: "application/json"
-        body: "{ "password": "elasticpass" }"
+        body: "{ 'password': 'elasticpass' }"
             
     #      shell: 'curl -XPOST -u elastic:`grep "PASSWORD elastic = " /passwords | awk '{print $4}'` localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
     #        {
