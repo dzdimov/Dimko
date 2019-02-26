@@ -206,7 +206,8 @@
       ignore_errors: true
 
     - name: Get Elastic password
-        shell: grep "PASSWORD elastic = " /passwords | awk '{print $4}'
+        shell: |
+          grep "PASSWORD elastic = " /passwords | awk '{print $4}'
         register: elasticpassword    
       
     - name: elasticpass
