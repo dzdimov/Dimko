@@ -109,321 +109,370 @@
       delegate_to: localhost
       
     - name: Execute CURL
-      shell: 'curl -XPUT -u elastic:elasticsearch localhost:9200/.kibana/_settings?pretty -H "Content-Type: application/json" -d
-             {
-               "index.blocks.write": true
-             }'
+      uri:
+        url: http://localhost:9200/.kibana/_settings?pretty
+        method: PUT
+        user: elastic
+        pass: elasticsearch
+        headers:
+          Content-Type: "application/json"
+        body: "{ 'index.blocks.write': true }"
+#      shell: 'curl -XPUT -u elastic:elasticsearch localhost:9200/.kibana/_settings?pretty -H "Content-Type: application/json" -d
+#             {
+#               "index.blocks.write": true
+#             }'
     
     - name: Execute CURL 
-      shell: 'curl -XPUT -u elastic:elasticpass localhost:9200/.kibana-6?pretty -H "Content-Type: application/json" -d
-             {
-               "settings" : {
-               "number_of_shards" : 1,
-               "index.mapper.dynamic": false
-             },
-                "mappings" : {
-                "doc": {
-                "properties": {
-                "type": {
-                "type": "keyword"
-              },
-                "updated_at": {
-                "type": "date"
-              },
-                "config": {
-                "properties": {
-                "buildNum": {
-                "type": "keyword"
-              }
-              }
-              },
-                "index-pattern": {
-                  "properties": {
-                    "fieldFormatMap": {
-                      "type": "text"
-                  },
-                    "fields": {
-                      "type": "text"
-                     },
-                "intervalName": {
-                   "type": "keyword"
-                   },
-                "notExpandable": {
-                   "type": "boolean"
-                   },
-            "sourceFilters": {
-              "type": "text"
-            },
-            "timeFieldName": {
-              "type": "keyword"
-            },
-            "title": {
-              "type": "text"
-            }
-          }
-        },
-        "visualization": {
-          "properties": {
-            "description": {
-              "type": "text"
-            },
-            "kibanaSavedObjectMeta": {
-              "properties": {
-                "searchSourceJSON": {
-                  "type": "text"
-                }
-              }
-            },
-            "savedSearchId": {
-              "type": "keyword"
-            },
-            "title": {
-              "type": "text"
-            },
-            "uiStateJSON": {
-              "type": "text"
-            },
-            "version": {
-              "type": "integer"
-            },
-            "visState": {
-              "type": "text"
-            }
-          }
-        },
-        "search": {
-          "properties": {
-            "columns": {
-              "type": "keyword"
-            },
-            "description": {
-              "type": "text"
-            },
-            "hits": {
-              "type": "integer"
-            },
-            "kibanaSavedObjectMeta": {
-              "properties": {
-                "searchSourceJSON": {
-                  "type": "text"
-                }
-              }
-            },
-            "sort": {
-              "type": "keyword"
-            },
-            "title": {
-              "type": "text"
-            },
-            "version": {
-              "type": "integer"
-            }
-          }
-        },
-        "dashboard": {
-          "properties": {
-            "description": {
-              "type": "text"
-            },
-            "hits": {
-              "type": "integer"
-            },
-            "kibanaSavedObjectMeta": {
-              "properties": {
-                "searchSourceJSON": {
-                  "type": "text"
-                }
-              }
-            },
-            "optionsJSON": {
-              "type": "text"
-            },
-            "panelsJSON": {
-              "type": "text"
-            },
-            "refreshInterval": {
-              "properties": {
-                "display": {
-                  "type": "keyword"
-                },
-                "pause": {
-                  "type": "boolean"
-                },
-                "section": {
-                  "type": "integer"
-                },
-                "value": {
-                  "type": "integer"
-                }
-              }
-            },
-            "timeFrom": {
-              "type": "keyword"
-            },
-            "timeRestore": {
-              "type": "boolean"
-            },
-            "timeTo": {
-              "type": "keyword"
-            },
-            "title": {
-              "type": "text"
-            },
-            "uiStateJSON": {
-              "type": "text"
-            },
-            "version": {
-              "type": "integer"
-            }
-          }
-        },
-        "url": {
-          "properties": {
-            "accessCount": {
-              "type": "long"
-            },
-            "accessDate": {
-              "type": "date"
-            },
-            "createDate": {
-              "type": "date"
-            },
-            "url": {
-              "type": "text",
-              "fields": {
-                "keyword": {
-                  "type": "keyword",
-                  "ignore_above": 2048
-                }
-              }
-            }
-          }
-        },
-        "server": {
-          "properties": {
-            "uuid": {
-              "type": "keyword"
-            }
-          }
-        },
-        "timelion-sheet": {
-          "properties": {
-            "description": {
-              "type": "text"
-            },
-            "hits": {
-              "type": "integer"
-            },
-            "kibanaSavedObjectMeta": {
-              "properties": {
-                "searchSourceJSON": {
-                  "type": "text"
-                }
-              }
-            },
-            "timelion_chart_height": {
-              "type": "integer"
-            },
-            "timelion_columns": {
-              "type": "integer"
-            },
-            "timelion_interval": {
-              "type": "keyword"
-            },
-            "timelion_other_interval": {
-              "type": "keyword"
-            },
-            "timelion_rows": {
-              "type": "integer"
-            },
-            "timelion_sheet": {
-              "type": "text"
-            },
-            "title": {
-              "type": "text"
-            },
-            "version": {
-              "type": "integer"
-            }
-          }
-        },
-        "graph-workspace": {
-          "properties": {
-            "description": {
-              "type": "text"
-            },
-            "kibanaSavedObjectMeta": {
-              "properties": {
-                "searchSourceJSON": {
-                  "type": "text"
-                }
-              }
-            },
-            "numLinks": {
-              "type": "integer"
-            },
-            "numVertices": {
-              "type": "integer"
-            },
-            "title": {
-              "type": "text"
-            },
-            "version": {
-              "type": "integer"
-            },
-            "wsState": {
-              "type": "text"
-             }
-           }
-         }
-       }
-     }
-   }
- }'
+      uri:
+        url: http://localhost:9200/.kibana-6?pretty
+        method: PUT
+        user: elastic
+        pass: elasticpass
+        headers:
+          Content-Type: "application/json"
+        src: file1.json
+      # shell: 'curl -XPUT -u elastic:elasticpass localhost:9200/.kibana-6?pretty -H "Content-Type: application/json" -d
+             # {
+               # "settings" : {
+               # "number_of_shards" : 1,
+               # "index.mapper.dynamic": false
+             # },
+                # "mappings" : {
+                # "doc": {
+                # "properties": {
+                # "type": {
+                # "type": "keyword"
+              # },
+                # "updated_at": {
+                # "type": "date"
+              # },
+                # "config": {
+                # "properties": {
+                # "buildNum": {
+                # "type": "keyword"
+              # }
+              # }
+              # },
+                # "index-pattern": {
+                  # "properties": {
+                    # "fieldFormatMap": {
+                      # "type": "text"
+                  # },
+                    # "fields": {
+                      # "type": "text"
+                     # },
+                # "intervalName": {
+                   # "type": "keyword"
+                   # },
+                # "notExpandable": {
+                   # "type": "boolean"
+                   # },
+            # "sourceFilters": {
+              # "type": "text"
+            # },
+            # "timeFieldName": {
+              # "type": "keyword"
+            # },
+            # "title": {
+              # "type": "text"
+            # }
+          # }
+        # },
+        # "visualization": {
+          # "properties": {
+            # "description": {
+              # "type": "text"
+            # },
+            # "kibanaSavedObjectMeta": {
+              # "properties": {
+                # "searchSourceJSON": {
+                  # "type": "text"
+                # }
+              # }
+            # },
+            # "savedSearchId": {
+              # "type": "keyword"
+            # },
+            # "title": {
+              # "type": "text"
+            # },
+            # "uiStateJSON": {
+              # "type": "text"
+            # },
+            # "version": {
+              # "type": "integer"
+            # },
+            # "visState": {
+              # "type": "text"
+            # }
+          # }
+        # },
+        # "search": {
+          # "properties": {
+            # "columns": {
+              # "type": "keyword"
+            # },
+            # "description": {
+              # "type": "text"
+            # },
+            # "hits": {
+              # "type": "integer"
+            # },
+            # "kibanaSavedObjectMeta": {
+              # "properties": {
+                # "searchSourceJSON": {
+                  # "type": "text"
+                # }
+              # }
+            # },
+            # "sort": {
+              # "type": "keyword"
+            # },
+            # "title": {
+              # "type": "text"
+            # },
+            # "version": {
+              # "type": "integer"
+            # }
+          # }
+        # },
+        # "dashboard": {
+          # "properties": {
+            # "description": {
+              # "type": "text"
+            # },
+            # "hits": {
+              # "type": "integer"
+            # },
+            # "kibanaSavedObjectMeta": {
+              # "properties": {
+                # "searchSourceJSON": {
+                  # "type": "text"
+                # }
+              # }
+            # },
+            # "optionsJSON": {
+              # "type": "text"
+            # },
+            # "panelsJSON": {
+              # "type": "text"
+            # },
+            # "refreshInterval": {
+              # "properties": {
+                # "display": {
+                  # "type": "keyword"
+                # },
+                # "pause": {
+                  # "type": "boolean"
+                # },
+                # "section": {
+                  # "type": "integer"
+                # },
+                # "value": {
+                  # "type": "integer"
+                # }
+              # }
+            # },
+            # "timeFrom": {
+              # "type": "keyword"
+            # },
+            # "timeRestore": {
+              # "type": "boolean"
+            # },
+            # "timeTo": {
+              # "type": "keyword"
+            # },
+            # "title": {
+              # "type": "text"
+            # },
+            # "uiStateJSON": {
+              # "type": "text"
+            # },
+            # "version": {
+              # "type": "integer"
+            # }
+          # }
+        # },
+        # "url": {
+          # "properties": {
+            # "accessCount": {
+              # "type": "long"
+            # },
+            # "accessDate": {
+              # "type": "date"
+            # },
+            # "createDate": {
+              # "type": "date"
+            # },
+            # "url": {
+              # "type": "text",
+              # "fields": {
+                # "keyword": {
+                  # "type": "keyword",
+                  # "ignore_above": 2048
+                # }
+              # }
+            # }
+          # }
+        # },
+        # "server": {
+          # "properties": {
+            # "uuid": {
+              # "type": "keyword"
+            # }
+          # }
+        # },
+        # "timelion-sheet": {
+          # "properties": {
+            # "description": {
+              # "type": "text"
+            # },
+            # "hits": {
+              # "type": "integer"
+            # },
+            # "kibanaSavedObjectMeta": {
+              # "properties": {
+                # "searchSourceJSON": {
+                  # "type": "text"
+                # }
+              # }
+            # },
+            # "timelion_chart_height": {
+              # "type": "integer"
+            # },
+            # "timelion_columns": {
+              # "type": "integer"
+            # },
+            # "timelion_interval": {
+              # "type": "keyword"
+            # },
+            # "timelion_other_interval": {
+              # "type": "keyword"
+            # },
+            # "timelion_rows": {
+              # "type": "integer"
+            # },
+            # "timelion_sheet": {
+              # "type": "text"
+            # },
+            # "title": {
+              # "type": "text"
+            # },
+            # "version": {
+              # "type": "integer"
+            # }
+          # }
+        # },
+        # "graph-workspace": {
+          # "properties": {
+            # "description": {
+              # "type": "text"
+            # },
+            # "kibanaSavedObjectMeta": {
+              # "properties": {
+                # "searchSourceJSON": {
+                  # "type": "text"
+                # }
+              # }
+            # },
+            # "numLinks": {
+              # "type": "integer"
+            # },
+            # "numVertices": {
+              # "type": "integer"
+            # },
+            # "title": {
+              # "type": "text"
+            # },
+            # "version": {
+              # "type": "integer"
+            # },
+            # "wsState": {
+              # "type": "text"
+             # }
+           # }
+         # }
+       # }
+     # }
+   # }
+ # }'
  
     - name: Curl 2
-      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_reindex?pretty -H "Content-Type: application/json" -d
-             {
-               "source": {
-                 "index": ".kibana"
-               },
-               "dest": {
-                 "index": ".kibana-6"
-               },
-               "script": {
-                 "inline": "ctx._source = [ ctx._type : ctx._source ]; ctx._source.type = ctx._type; ctx._id = ctx._type + \":\" + ctx._id; ctx._type = \"doc\"; ",
-                 "lang": "painless"
-               }
-             }'
+      uri:
+        url: http://localhost:9200/_reindex?pretty
+        method: POST
+        user: elastic
+        pass: elasticpass
+        headers:
+          Content-Type: "application/json"
+        src: file2.json
+        
+      # shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_reindex?pretty -H "Content-Type: application/json" -d
+             # {
+               # "source": {
+                 # "index": ".kibana"
+               # },
+               # "dest": {
+                 # "index": ".kibana-6"
+               # },
+               # "script": {
+                 # "inline": "ctx._source = [ ctx._type : ctx._source ]; ctx._source.type = ctx._type; ctx._id = ctx._type + \":\" + ctx._id; ctx._type = \"doc\"; ",
+                 # "lang": "painless"
+               # }
+             # }'
              
     - name: Curl 3
-      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_aliases?pretty -H "Content-Type: application/json" -d
-              {
-                "actions" : [
-                { "add":  { "index": ".kibana-6", "alias": ".kibana" } },
-                { "remove_index": { "index": ".kibana" } }
-                 ]
-                 }'
+      uri:
+        url: http://localhost:9200/_aliases?pretty
+        method: POST
+        user: elastic
+        pass: elasticpass
+        headers:
+          Content-Type: "application/json"
+        src: file3.json
+      # shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_aliases?pretty -H "Content-Type: application/json" -d
+              # {
+                # "actions" : [
+                # { "add":  { "index": ".kibana-6", "alias": ".kibana" } },
+                # { "remove_index": { "index": ".kibana" } }
+                 # ]
+                 # }'
                  
     - name: Curl 4
-      shell: 'curl -XPUT -u elastic:elasticpass localhost:9200/logstash-0?pretty -H "Content-Type: application/json" -d
-              {
-                "mappings" : {
-                "type1" : {
-                "properties" : {
-                "@timestamp" : { "type" : "date","copy_to": false },
-                "loglevel": { "type": "text", "norms": false, "fields": { "keyword": { "type": "keyword" } } },
-                "host": { "type": "text", "norms": false, "fields": { "keyword": { "type": "keyword" } } },
-                "bytes": { "type": "long" },
-                "response": { "type": "long" }
-                    }
-                  }
-                }
-             }'
+      uri:
+        url: http://localhost:9200/logstash-0?pretty
+        method: PUT
+        user: elastic
+        pass: elasticpass
+        headers:
+          Content-Type: "application/json"
+        file: file4.json
+      # shell: 'curl -XPUT -u elastic:elasticpass localhost:9200/logstash-0?pretty -H "Content-Type: application/json" -d
+              # {
+                # "mappings" : {
+                # "type1" : {
+                # "properties" : {
+                # "@timestamp" : { "type" : "date","copy_to": false },
+                # "loglevel": { "type": "text", "norms": false, "fields": { "keyword": { "type": "keyword" } } },
+                # "host": { "type": "text", "norms": false, "fields": { "keyword": { "type": "keyword" } } },
+                # "bytes": { "type": "long" },
+                # "response": { "type": "long" }
+                    # }
+                  # }
+                # }
+             # }'
              
     - name: Configure logstast to be the default index pattern
-      shell: 'curl -XPUT -H "Content-Type: application/json" -u elastic:elasticpass http://localhost:9200/.kibana/index-pattern/logstash-* -d 
-             {"title" : "logstash-*",  "timeFieldName": "@timestamp"}'
+      uri:
+        url: http://localhost:9200/.kibana/index-pattern/logstash-*
+        method: PUT
+        user: elastic
+        pass: elasticpass
+        headers:
+          Content-Type: "application/json"
+        src: file5.json
+      # shell: 'curl -XPUT -H "Content-Type: application/json" -u elastic:elasticpass http://localhost:9200/.kibana/index-pattern/logstash-* -d 
+             # {"title" : "logstash-*",  "timeFieldName": "@timestamp"}'
       
     - name: Stopping Kibana
       systemd:
