@@ -2,9 +2,9 @@
 # tasks file for Pentaho
     - name: Stop Pentaho if CentOS is version 6
       service:
-      name: Pentaho
-      state: Stop
-      when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
+        name: Pentaho
+        state: Stop
+        when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
 
     - name: Wait for Pentaho to stop for 30 seconds
       wait_for: timeout=30
