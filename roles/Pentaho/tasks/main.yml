@@ -4,7 +4,7 @@
       service:
         name: Pentaho
         state: Stopped
-        when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
+      when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
 
     - name: Wait for Pentaho to stop for 30 seconds
       wait_for: timeout=30
@@ -25,13 +25,13 @@
       service:
         name: Pentaho
         state: started
-        when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
+      when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
 
     - name: Stop Pentaho if CentOS is version 7
       systemd:
         name: Pentaho
         state: Stopped
-        when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
     - name: Wait for Pentaho to stop for 30 seconds
       wait_for: timeout=30
@@ -52,4 +52,4 @@
       systemd:
         name: Pentaho
         state: started
-        when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '7'
+      when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '7'
