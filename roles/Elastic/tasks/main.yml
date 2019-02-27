@@ -159,7 +159,7 @@
         method: PUT
         headers:
           Content-Type: "application/json"
-        src: /etc/elasticsearch/acmIndexConfig.json
+        src: acmIndexConfig.json
            
     #      shell: 'curl -XPUT localhost:9200/acm_advanced_search?pretty -H "Content-Type: application/json" --data-binary @/etc/elasticsearch/acmIndexConfig.json'
           
@@ -169,7 +169,7 @@
         method: PUT
         headers:
           Content-Type: "application/json"
-        src: /etc/ansible/acmIndexConfig.json
+        src: acmIndexConfig.json
                    
     #      shell: 'curl -XPUT localhost:9200/acm_quick_search?pretty -H "Content-Type: application/json" --data-binary @$/etc/ansible/acmIndexConfig.json'
 
@@ -179,7 +179,7 @@
         method: PUT
         headers:
           Content-Type: "application/json"
-        src: /etc/ansible/acmIndexConfig.json
+        src: acmIndexConfig.json
             
     #      shell: 'curl -XPUT localhost:9200/acm_log_search?pretty -H "Content-Type: application/json" --data-binary @/etc/ansible/acmIndexConfig.json'
 
