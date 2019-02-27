@@ -51,4 +51,3 @@
         name: Pentaho
         state: started
         when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '7'
-		
