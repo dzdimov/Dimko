@@ -201,56 +201,60 @@
       wait_for: timeout=90
       delegate_to: localhost
             
-    - name: Generate ELK Passwords
-      shell: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b -v > passwords
-      ignore_errors: true
+    # - name: Generate ELK Passwords
+      # shell: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b -v > passwords
+      # ignore_errors: true
 
     - name: Get Elastic password
       shell: grep "PASSWORD elastic = " /passwords | awk '{print $4}'
       register: elasticpassword    
-          
-    - name: elasticpass
-      uri:
-        url: http://localhost:9200/_xpack/security/user/elastic/_password?pretty
-        method: POST
-        user: elastic
-        pass: "{{ elasticpassword.stdout }}"
-        headers:
-          Content-Type: "application/json"
-        body: "{ 'password': 'elasticpass' }"
+ 
+# Dont delete 
+    # - name: elasticpass
+      # uri:
+        # url: http://localhost:9200/_xpack/security/user/elastic/_password?pretty
+        # method: POST
+        # user: elastic
+        # pass: "{{ elasticpassword.stdout }}"
+        # headers:
+          # Content-Type: "application/json"
+        # body: "{ 'password': 'elasticpass' }"
             
     #      shell: 'curl -XPOST -u elastic:`grep "PASSWORD elastic = " /passwords | awk '{print $4}'` localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
     #        {
     #          "password": "elasticpass"
     #        }'
-            
-    - name: kibanapass
-      uri:
-        url: http://localhost:9200/_xpack/security/user/kibana/_password?pretty
-        method: POST
-        user: elastic
-        pass: elasticpass
-        headers:
-          Content-Type: "application/json"
-        body: "{ 'password': 'kibanapass' }"
+
+# Dont delete    
+    # - name: kibanapass
+      # uri:
+        # url: http://localhost:9200/_xpack/security/user/kibana/_password?pretty
+        # method: POST
+        # user: elastic
+        # pass: elasticpass
+        # headers:
+          # Content-Type: "application/json"
+        # body: "{ 'password': 'kibanapass' }"
     #      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
     #        {
     #          "password": "kibanapass"
     #        }'
-            
-    - name: logstashpass
-      uri:
-        url: http://localhost:9200/_xpack/security/user/logstash_system/_password?pretty
-        method: POST
-        user: elastic
-        pass: elasticpass
-        headers:
-          Content-Type: "application/json"
-        body: "{ 'password': 'logstashpass' }"
+
+#Dont delete    
+    # - name: logstashpass
+      # uri:
+        # url: http://localhost:9200/_xpack/security/user/logstash_system/_password?pretty
+        # method: POST
+        # user: elastic
+        # pass: elasticpass
+        # headers:
+          # Content-Type: "application/json"
+        # body: "{ 'password': 'logstashpass' }"
     #      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/logstash_system/_password?pretty -H "Content-Type: application/json" -d
     #        {
     #          "password": "logstashpass"
     #        }'
 
-    - name: Remove passwords
-      shell: rm /passwords -f
+    #Dont delete
+    # - name: Remove passwords
+      # shell: rm /passwords -f
