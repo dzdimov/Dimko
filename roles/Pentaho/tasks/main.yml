@@ -18,7 +18,8 @@
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
 
     - name: Force kill Pentaho if it's still running
-      shell: "sudo kill -9 {{ item }}"
+      become: yes
+      shell: "kill -9 {{ item }}"
       with_items: "{{ running_process_number.stdout_lines }}"
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6' and running_process_number.stdout != ''
       
@@ -46,7 +47,8 @@
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
       
     - name: Force kill Pentaho if it's still running
-      shell: "sudo kill -9 {{ item }}"
+      become: yes
+      shell: "kill -9 {{ item }}"
       with_items: "{{ running_process_number.stdout_lines }}"
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7' and running_process_number.stdout != ''
   
