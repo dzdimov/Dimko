@@ -3,7 +3,7 @@
     - name: Stop Pentaho if CentOS is version 6
       service:
         name: Pentaho
-        state: Stop
+        state: Stopped
         when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
 
     - name: Wait for Pentaho to stop for 30 seconds
@@ -30,7 +30,7 @@
     - name: Stop Pentaho if CentOS is version 7
       systemd:
         name: Pentaho
-        state: Stop
+        state: Stopped
         when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
     - name: Wait for Pentaho to stop for 30 seconds
