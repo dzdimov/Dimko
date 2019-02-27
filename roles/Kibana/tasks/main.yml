@@ -51,6 +51,7 @@
 ##        remote_src: yes
 ##        directory_mode: yes
       shell: cp -r /usr/share/kibana/* /opt/kibana
+      ignore_errors: true
       
     - name: Delete the folder
       file:
