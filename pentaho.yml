@@ -1,3 +1,6 @@
+---
+  - hosts: all
+    tasks:
     - name: Stop Pentaho if CentOS is version 6
       service:
         name: Pentaho
