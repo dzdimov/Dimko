@@ -155,7 +155,7 @@
 
     - name: Configuring elsaticsearch for acm_advanced_search
       uri:
-        url: localhost:9200/acm_advanced_search?pretty
+        url: http://localhost:9200/acm_advanced_search?pretty
         method: PUT
         headers:
           Content-Type: "application/json"
@@ -165,7 +165,7 @@
           
     - name: Configuring elsaticsearch for acm_quick_search
       uri:
-        url: localhost:9200/acm_quick_search?pretty
+        url: http://localhost:9200/acm_quick_search?pretty
         method: PUT
         headers:
           Content-Type: "application/json"
@@ -175,7 +175,7 @@
 
     - name: Configuring elsaticsearch for acm_log_search
       uri:
-        url: localhost:9200/acm_log_search?pretty
+        url: http://localhost:9200/acm_log_search?pretty
         method: PUT
         headers:
           Content-Type: "application/json"
