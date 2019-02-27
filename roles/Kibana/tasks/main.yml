@@ -71,9 +71,8 @@
         path: /etc/init.d/kibana
         regexp: "program=/usr/share/kibana/bin/kibana"
         replace: "program=/opt/kibana/bin/kibana"
-        backup: yes
+        backup: yes      
 
-        
     - name: Backup default Kibana configuration file
       copy:
         src: /etc/kibana/kibana.yml
@@ -83,7 +82,7 @@
     - name: Copy kibana.yml from remote to /opt/kibana
       copy:
         src: kibana.yml
-        dest: /opt/kibana/config/
+        dest: /etc/kibana/
 
     - name: Delete Elasticsearch var/lock/subsys
       file:
