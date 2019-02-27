@@ -46,12 +46,12 @@
  
 # Ask David if we need to do this 
     - name: Copy everything from /usr/share to opt/kibana/
-# ##      copy:
-# ##        src: /usr/share/kibana
-# ##        dest: /opt/kibana
-# ##        remote_src: yes
-# ##        directory_mode: yes
-       shell: cp -r /usr/share/kibana/* /opt/kibana
+      copy:
+        src: /usr/share/kibana
+        dest: /opt/kibana/
+        remote_src: yes
+       directory_mode: yes
+#       shell: cp -r /usr/share/kibana/* /opt/kibana
        ignore_errors: true
 
 # This is connected with the above task      
