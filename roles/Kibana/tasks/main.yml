@@ -55,10 +55,10 @@
        ignore_errors: true
 
 # This is connected with the above task      
-     - name: Delete the folder
-       file:
-         path: /usr/share/kibana
-         state: absent
+    - name: Delete the folder
+      file:
+        path: /usr/share/kibana
+        state: absent
       
     - name: Change ownership of opt/kibana
       file:
