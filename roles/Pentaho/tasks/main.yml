@@ -5,6 +5,7 @@
         name: pentaho
         state: stopped
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+      ignore_errors: true
 
     - name: Wait for Pentaho to stop for 30 seconds
       wait_for: timeout=30
@@ -32,6 +33,7 @@
         name: pentaho
         state: stopped
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      ignore_errors: true
 
     - name: Wait for Pentaho to stop for 30 seconds
       wait_for: timeout=30
