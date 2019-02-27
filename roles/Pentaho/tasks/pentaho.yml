@@ -1,0 +1,56 @@
+---
+  - hosts: all
+    tasks:
+    - name: Stop Pentaho if CentOS is version 6
+      service:
+        name: Pentaho
+        state: Stop
+        when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
+
+    - name: Wait for Pentaho to stop for 30 seconds
+      wait_for: timeout=30
+      delegate_to: localhost
+      when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
+
+    - name: Check if Pentaho is still running and register it
+      shell: "ps -ef | grep -v grep | grep -w pentaho | awk '{print $2}'"
+      register: running_process_number
+      when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
+
+    - name: Force kill Pentaho if it's still running
+      shell: "kill -9 {{ running_process_number }}"
+      with_items: "{{ running_process_number.stdout_lines }}"
+      when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6' and running_process_number.stdout != ''
+      
+    - name: Start Pentaho if CentOS is version 6
+      service:
+        name: Pentaho
+        state: started
+        when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '6'
+
+    - name: Stop Pentaho if CentOS is version 7
+      systemd:
+        name: Pentaho
+        state: Stop
+        when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Wait for Pentaho to stop for 30 seconds
+      wait_for: timeout=30
+      delegate_to: localhost
+      when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '7'
+
+    - name: Check if Pentaho is still running and register it
+      shell: "ps -ef | grep -v grep | grep -w pentaho | awk '{print $2}'"
+      register: running_process_number
+      when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '7'
+      
+    - name: Force kill Pentaho if it's still running
+      shell: "kill -9 {{ running_process_number }}"
+      with_items: "{{ running_process_number.stdout_lines }}"
+      when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '7' and running_process_number.stdout != ''
+  
+    - name: Start Pentaho if CentOS is version 7
+      systemd:
+        name: Pentaho
+        state: started
+        when: ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_major_version'] == '7'
