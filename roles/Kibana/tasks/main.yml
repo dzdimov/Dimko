@@ -51,7 +51,7 @@
         dest: /opt/kibana/
         remote_src: yes
         directory_mode: yes
-        ignore_errors: true
+      ignore_errors: true
 #       shell: cp -r /usr/share/kibana/* /opt/kibana
         
 # This is connected with the above task      
