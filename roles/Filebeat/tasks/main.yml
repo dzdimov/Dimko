@@ -159,7 +159,7 @@
     - name: Change the ALF_HOME
       replace:
         path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_ALF_CONFIG_FILE }}'
-        regexp: "$ALF_HOME"
+        regexp: "//$ALF_HOME"
         replace: "{{ ALF_HOME }}"
         backup: yes
         
