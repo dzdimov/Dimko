@@ -1,0 +1,24 @@
+---
+    - name: Check if Java is installed
+      shell: java -v
+      register: check_java
+      ignore_errors: True
+      changed_when: False
+      
+    - name: Copy the JAVA binary
+      copy:
+        src: "{{ JAVA_PACKAGE }}"
+        dest: /tmp/java/
+      when: check_java is failed
+
+    - name: Install JAVA if it's not present
+      yum:
+        name: /tmp/java/{{ JAVA_PACKAGE }}
+        state: present
+      when: check_java is failed
+  
+    - name: Delete the JAVA binary
+      file: 
+        path: /tmp/java/{{ JAVA_PACKAGE }}
+        state: absent
+      when: check_java is failed

@@ -112,16 +112,16 @@
     ##        backup: yes
 
     - name: Copying ElasticSearch configuration files
-      copy:
-        src: elasticsearch.yml
-        dest: /opt/elasticsearch/conf
+      template:
+        src: /templates/elasticsearch.yml
+        dest: /var/lib/elasticsearch/conf
 
-    - name: Replace ES_PORT
-      replace:
-        path: /opt/elasticsearch/conf/elasticsearch.yml
-        regexp: "\\$ES_PORT"
-        replace: "{{ ES_PORT }}"
-        backup: yes
+    # - name: Replace ES_PORT
+      # replace:
+        # path: /opt/elasticsearch/conf/elasticsearch.yml
+        # regexp: "\\$ES_PORT"
+        # replace: "{{ ES_PORT }}"
+        # backup: yes
 
     - name: Copying ElasticSearch configuration files
       copy:

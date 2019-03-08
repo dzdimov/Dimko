@@ -1,0 +1,22 @@
+---
+    - name: Check if JAVA is installed
+      shell: java -version 2>&1 | grep version | awk '{print $3}' | sed 's/"//g'
+      register: java_version
+
+    - name: Copy the JAVA binary
+      copy:
+        src: "{{ JAVA_PACKAGE }}"
+        dest: /tmp/java/
+      when: java_version.stdout_lines == ' '
+
+    - name: Install JAVA if it's not present
+      yum:
+        name: /tmp/java/{{ JAVA_PACKAGE }}
+        state: present
+      when: java_version.stdout_lines == ' '
+  
+    - name: Delete the JAVA binary
+      file: 
+        path: /tmp/java/{{ JAVA_PACKAGE }}
+        state: absent
+      when: java_version.stdout_lines == ' '

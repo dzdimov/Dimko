@@ -1,0 +1,3 @@
+---
+# defaults file for InstallJAVA
+JAVA_PACKAGE: jdk-8u201-linux-x64.rpm
