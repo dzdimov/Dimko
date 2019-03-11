@@ -1,7 +1,7 @@
 Role Name
 =========
 
-This role is used to deploy new versions of the config-server jar file
+A brief description of the role goes here.
 
 Requirements
 ------------
@@ -35,6 +35,4 @@ BSD
 Author Information
 ------------------
 
-Author: Dimitar Dimov
-Position: DevOps
-Company: Armedia, LLC
+An optional section for the role authors to include contact information, or a website (HTML is not allowed).

@@ -1,0 +1,57 @@
+Dev sites
+1. Name: Core
+   IP: 10.21.10.24
+   
+2. Name: Correspondence Dev
+   IP: 10.21.10.27
+   
+3. Name: NRC Dev
+   IP: 10.21.10.40
+   
+4. Name: FOIA Dev
+   IP: 10.21.10.25
+   
+5. Name: DC OCFO dev
+   IP: 10.60.17.35
+   
+6. Name: LegTech dev
+   IP: 10.60.20.34
+   
+Core ArkCase
+7. Name: cloud.arkcase.com
+   IP: 10.21.14.172
+   
+8. Name: demo.arkcase.com
+   IP: 10.21.14.173
+   
+9. Name: poc.arkcase.com
+   IP: 10.21.14.185
+ 
+10. Name: legal.arkcase.com
+    IP: 10.60.12.34
+
+NRC Extension
+11. Name: test.nrc.arkcase.com
+    IP: 10.21.14.168
+   
+FOIA Extension
+12. Name: foia.arkcase.com
+    IP: 10.21.14.174
+
+13. Name: test.dc-ocfo-foia.arkcase.com - DC OCFO internal test site 
+    IP: 10.60.17.36
+
+14. Name: dev.foia-ocfo.arkcase.com - DC OCFO UAT/pre-production site
+    IP: 10.60.17.37
+	
+15. Name: foia1.arkcase.com - AWS site 
+    IP: 34.196.243.211
+	
+16. Name: foia-ocfo.arkcase.com - DC OCFO production site
+    IP: 10.60.17.34
+	
+17. Name: pre-prod.waleg.publicrecordsrequests.arkcase.com - Leg Tech preprod site
+    IP: 10.60.20.36
+	
+18. Name: waleg.publicrecordsrequests.arkcase.com - Leg Tech prod site 
+    IP: 10.60.20.37

@@ -1,2 +1,67 @@
 ---
 # tasks file for DeployArkcaseSCS
+    - name: Create the directory for config-server.jar deployment
+      file:
+        path: /opt/app/acm/config-server
+        state: directory
+        mode: 0755
+        group: arkuser
+        owner: arkuser
+        
+    - name: Get the name of the current jar file
+      shell:  ll | grep *.jar | awk '{print $9}'
+      register: ConfigServerVersion
+        
+    - name: Rename the current jar file
+      file:
+        src: /opt/app/acm/{{ ConfigServerVersion }}
+        dest: /opt/app/acm/{{ ConfigServerVersion }}.backup
+        
+    - name: Copy the new config-server jar file
+      copy:
+        src: ##NAME OF THE FILE##
+        dest: /opt/app/acm/
+        
+    - name: Change the ownership of the new config-server jar file
+      file:
+        path: /opt/app/acm/##NAME OF JAR FILE##
+        owner: arkuser
+        group: arkuser
+        mode: 0755
+        
+    - name: Make a symlink if CentOS 6
+      file:
+        src: "/opt/app/acm/##NAME OF THE JAR FILE##
+        dest: "/etc/init.d/config-server"
+        state: link
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+      
+    - name: Move the unit file to systemd if CentOS 7
+      copy:
+        src: acm-scc.service
+        dest: /etc/systemd/system/
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      
+    - name: Enable the service if CentOS 6
+      service:
+        name: config-server
+        enabled: yes
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+      
+    - name: Enable the service if CentOS 7
+      systemd:
+        name: config-server
+        enabled: yes
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      
+    - name: Start the service if CentOS 6
+      service:
+        name: config-server
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+      
+    - name: Start the service if CentOS 7
+      systemd:
+        name: config-server
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'

@@ -1,0 +1,64 @@
+---
+# tasks file for RestartService
+    - name: Check if the OS version is supported
+      debug:
+        msg: This OS version {{ ansible_distribution.stdout_lines }} is not supprted. The supported versions are CentOS 6 and CentOS 7
+      when: ansible_distribution != 'CentOS'
+      
+    - name: Stop the service if CentOS is version 6
+      service:
+        name: "{{ service_name }}"
+        state: stopped
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+      ignore_errors: true
+
+    - name: Wait for the service to stop for 30 seconds
+      wait_for: timeout=30
+      delegate_to: localhost
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+
+    - name: Check if the service is still running and register it
+      shell: ps -ef | grep -v grep | grep -w {{ service_name }} | awk '{print $2}'
+      register: running_process_number
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+
+    - name: Force kill the service if it's still running
+      become: yes
+      shell: "kill -9 {{ item }}"
+      with_items: "{{ running_process_number.stdout_lines }}"
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6' and running_process_number.stdout != ''
+      
+    - name: Start the service if CentOS is version 6
+      service:
+        name: "{{ service_name }}"
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+
+    - name: Stop the service if CentOS is version 7
+      systemd:
+        name: "{{ service_name }}"
+        state: stopped
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      ignore_errors: true
+
+    - name: Wait for the service to stop for 30 seconds
+      wait_for: timeout=30
+      delegate_to: localhost
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Check if the service is still running and register it
+      shell: ps -ef | grep -v grep | grep -w {{ service_name }} | awk '{print $2}'
+      register: running_process_number
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      
+    - name: Force kill the service if it's still running
+      become: yes
+      shell: "kill -9 {{ item }}"
+      with_items: "{{ running_process_number.stdout_lines }}"
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7' and running_process_number.stdout != ''
+  
+    - name: Start the service if CentOS is version 7
+      systemd:
+        name: "{{ service_name }}"
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'

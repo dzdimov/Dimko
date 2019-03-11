@@ -1,0 +1,37 @@
+---
+# tasks file for UpdateSnowbound
+    - name: Create the directory for snowbound.jar deployment
+      file:
+        path: /opt/app/acm/snowbound
+        state: directory
+        mode: 0755
+        group: snowbound
+        owner: snowbound
+        
+    - name: Get the name of the current jar file
+      shell:  ll | grep *.jar | awk '{print $9}'
+      register: SnowboundVersion
+        
+    - name: Rename the current jar file
+      file:
+        src: /opt/app/acm/{{ SnowboundVersion }}
+        dest: /opt/app/acm/{{ SnowboundVersion }}.backup
+        
+    - name: Copy the new snowbound jar file
+      copy:
+        src: ##NAME OF THE FILE##
+        dest: /opt/app/acm/
+        
+    - name: Change the ownership of the new snowbound jar file
+      file:
+        path: /opt/app/acm/##NAME OF JAR FILE##
+        owner: snowbound
+        group: snowbound
+        mode: 0755
+        
+    - name: Include Restart Role
+      include_role: 
+        name: RestartService
+      vars:
+        service_name: snowbound
+      
