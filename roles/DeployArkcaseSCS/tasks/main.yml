@@ -9,18 +9,24 @@
         owner: arkuser
         
     - name: Get the name of the current jar file
-      shell:  ll | grep *.jar | awk '{print $9}'
+      shell:  ll /opt/app/acm/config-server | grep *.jar | awk '{print $9}'
       register: ConfigServerVersion
         
+    - name: Get the date
+      shell: date +%Y%m%d%H%M%S
+      register: timestamp
+      when: ConfigServerVersion.stdout != ''
+      
     - name: Rename the current jar file
       file:
         src: /opt/app/acm/{{ ConfigServerVersion }}
-        dest: /opt/app/acm/{{ ConfigServerVersion }}.backup
+        dest: /opt/app/acm/{{ ConfigServerVersion }}.{{ timestamp.stdout }}.backup
+      when: ConfigServerVersion.stdout != ''
         
     - name: Copy the new config-server jar file
       copy:
         src: ##NAME OF THE FILE##
-        dest: /opt/app/acm/
+        dest: /opt/app/acm/config-server
         
     - name: Change the ownership of the new config-server jar file
       file:

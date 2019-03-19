@@ -1,37 +1,30 @@
 ---
 # tasks file for UpdateSnowbound
-    - name: Create the directory for snowbound.jar deployment
-      file:
+    - name: Create the directory for snowbound.war deployment
+      stat:
         path: /opt/app/acm/snowbound
         state: directory
-        mode: 0755
-        group: snowbound
-        owner: snowbound
-        
-    - name: Get the name of the current jar file
-      shell:  ll | grep *.jar | awk '{print $9}'
-      register: SnowboundVersion
-        
-    - name: Rename the current jar file
-      file:
-        src: /opt/app/acm/{{ SnowboundVersion }}
-        dest: /opt/app/acm/{{ SnowboundVersion }}.backup
-        
-    - name: Copy the new snowbound jar file
+      register: state
+
+    - name: Copy the new snowbound war file
       copy:
-        src: ##NAME OF THE FILE##
-        dest: /opt/app/acm/
+        src: VirtualViewerJavaHTML5.war
+        dest: /opt/app/acm/snowbound/webapps/VirtualViewerJavaHTML5.war
+        backup: yes
+      when: state.stat.isdir is defined and state.stat.isdir
         
-    - name: Change the ownership of the new snowbound jar file
+    - name: Change the ownership of the new snowbound war file
       file:
-        path: /opt/app/acm/##NAME OF JAR FILE##
+        path: /opt/app/acm/snowbound/webapps/VirtualViewerJavaHTML5.war
         owner: snowbound
         group: snowbound
         mode: 0755
+      when: state.stat.isdir is defined and state.stat.isdir
         
     - name: Include Restart Role
       include_role: 
         name: RestartService
       vars:
         service_name: snowbound
+      when: state.stat.isdir is defined and state.stat.isdir
       
