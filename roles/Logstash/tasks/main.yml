@@ -3,51 +3,68 @@
 # Ask David if the path should be opt or etc?
     - name: Create the directories
       file:
-        path: /opt/logstash/{{item}}
+        path: /etc/logstash/{{item}}
         state: directory
         mode: 0755
       with_items:
       - /logs
       - /certs
       - /private
-      - /data
+      
+    - name: Download and install the public signing key
+      shell: rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
-    - name: Copy the LogStash binary
+    - name: Copy the LogStash repo
       copy: 
-        src: "{{ LOGSTASH_PACKAGE }}"
-        dest: /tmp/logstash/
+        src: logstash.repo
+        dest: /etc/yum.repos.d/
        
     - name: Install LogStash
       yum:
-        name: /tmp/logstash/{{ LOGSTASH_PACKAGE }}
+        name: logstash
         state: present
 
-    - name: Delete the binary
+    - name: Copy files from usr/share to opt/app/logstash
+      copy:
+        src: /usr/share/logstash/
+        dest: /opt/app/logstash/
+        remote_src: yes
+        
+    - name: Delete files from usr/share
       file:
-        path: /tmp/logstash/
+        dest: /usr/share/logstash/
         state: absent
-
+        
+    - name: Change ownership of /opt/app/logstash
+      file:
+        dest: /opt/app/logstash
+        group: logstash
+        owner: logstash
+        mode: 0755
+        recurse: yes
+        
 ## DA SE ISKOPIRAAT OD /role/file direktrno na lokacijata i 
 ## soodvetno na toa da se prasa David dali da se kopiraat vo opt ili etc
 ##    - name: Copy the certificates
 ##      copy:
 ##      src: /opt/ansible/GIT/Dimko/roles/Logstash/files/certs/
 ##      dest: /opt/certs/
-        
+
+# Is the path correct?
     - name: Install the certificates
       copy:
         src: acm-elasticsearch-server-client.key.pkcs8
-        dest: /opt/logstash/private/
+        dest: /etc/logstash/private/
         
     - name: Install the certifites 2
       copy:
         src: acm-elasticsearch-server-client.cert.pem
-        dest: /opt/logstash/certs/
+        dest: /etc/logstash/certs/
         
     - name: Install the certificates 3
       copy:
         src: ca-chain.cert.pem
-        dest: /opt/logstash/certs/
+        dest: /etc/logstash/certs/
         
     - name: Install the certificates 4
       copy:
@@ -59,49 +76,38 @@
         yes |  keytool -import -file /opt/logstash/certs/ca-chain.cert.pem -alias caChain -storepass AcMd3v -keystore /opt/logstash/certs/logstashTrustStore.jks
         update-ca-trust force-enable
         update-ca-trust extract
-        
-    - name: Change the ownership on all files in /opt/logstash/
-      file: 
-        dest: /opt/logstash/
-        owner: logstash
-        group: logstash
-        mode: 0755
-        recurse: yes
       
     - name: Copy Logstash Config files
       copy:
         src: conf/
-        dest: /etc/logstash/
+        dest: /etc/logstash/conf.d/
         
 ## Error when executing with path: /opt since file is in etc        
-    - name: Replace LS_SETTINGS_DIR
-      replace:
-        path: /etc/logstash/startup.options
-        regexp: LS_SETTINGS_DIR=/etc/logstash
-        replace: LS_SETTINGS_DIR=/opt/logstash
-        backup: yes
-
-    - name: Replace path.config
-      replace:
-        path: /etc/logstash/logstash.yml
-        regexp: 'path.config: /etc/logstash/conf.d'
-        replace: 'path.config: /opt/logstash/conf.d'
-        backup: yes
+# TBD if we need this
+    # - name: Replace LS_SETTINGS_DIR
+      # replace:
+        # path: /etc/logstash/startup.options
+        # regexp: LS_SETTINGS_DIR=/etc/logstash
+        # replace: LS_SETTINGS_DIR=/opt/logstash
+        # backup: yes
         
     - name: Add username and pass to logstash.yml
       shell: |
-        echo xpack.monitoring.elasticsearch.username: logstash_system >> logstash.yml
-        echo xpack.monitoring.elasticsearch.password: logstashpass >> logstash.yml
-        /usr/share/logstash/bin/system-install /etc/logstash/startup.options sysv
-        
-#    - name: Change permission of startup.options 
-#      file:
-#        path: /etc/logstash/startup.options
-#        mode: 0755
+#        echo xpack.monitoring.elasticsearch.username: logstash_system >> logstash.yml
+#        echo xpack.monitoring.elasticsearch.password: logstashpass >> logstash.yml
+        /opt/app/logstash/bin/system-install /etc/logstash/startup.options sysv
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
 
-#    - name: Execude startup.options
+    - name: Change permission of startup.options 
+      file:
+        path: /etc/logstash/startup.options
+        mode: 0755
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+        
+#    - name: Execute startup.options
 #      shell: |
 #        /etc/logstash/startup.options sysv
+
 
     - name: Replace KILL_ON_STOP_TIMEOUT
       replace:
@@ -112,54 +118,54 @@
         
     - name: Change LOGSTASH_MYSQL_PORT
       replace:
-        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
+        path: /etc/logstash/conf.d/{{LOGSTASH_CONFIG_FILE_01}}
         regexp: '\\$LOGSTASH_MYSQL_PORT'
         replace: '{{ LOGSTASH_MYSQL_PORT }}'
         backup: yes
 
     - name: Change LOGSTASH_SNOWBOUND_PORT
       replace:
-        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
+        path: /etc/logstash/conf.d/{{LOGSTASH_CONFIG_FILE_01}}
         regexp: '\\$LOGSTASH_SNOWBOUND_PORT'
         replace: '{{ LOGSTASH_SNOWBOUND_PORT }}'
         backup: yes
 
     - name: Change LOGSTASH_PENTAHO_PORT
       replace:
-        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
+        path: /etc/logstash/conf.d/{{LOGSTASH_CONFIG_FILE_01}}
         regexp: '\\$LOGSTASH_PENTAHO_PORT'
         replace: '{{ LOGSTASH_PENTAHO_PORT }}'
         backup: yes
 
     - name: Change ELK_PORT
       replace:
-        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
+        path: /etc/logstash/conf.d/{{LOGSTASH_CONFIG_FILE_01}}
         regexp: '\\$ELK_PORT'
         replace: '{{ ELK_PORT }}'
         backup: yes
 
     - name: Change LOGSTASH_ALF_PORT
       replace:
-        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_01}}
+        path: /etc/logstash/conf.d/{{LOGSTASH_CONFIG_FILE_01}}
         regexp: '\\$LOGSTASH_ALF_PORT'
         replace: '{{ LOGSTASH_ALF_PORT }}'
         backup: yes
 
     - name: Change ES_PORT
       replace:
-        path: /etc/logstash/{{LOGSTASH_CONFIG_FILE_99}}
+        path: /etc/logstash/conf.d/{{LOGSTASH_CONFIG_FILE_99}}
         regexp: '\\$ES_PORT'
         replace: '{{ ES_PORT }}'
         backup: yes
-##    - name: Copy logstash_configs
-##      copy:
-##        src: /etc/ansible/GIT/Dimko/roles/Logstash/files/logstash_configs
-##        dest: /opt/logstash/
 
-##    - name: Adding LogStash service to autostart
-##      service: name=logstash enabled=yes
-     
-    - name: Adding LogStash to startup.sh & shutdown.sh scripts
-      shell: |
-        echo '/etc/init.d/logstash start' >> /usr/local/bin/startup.sh
-        echo '/etc/init.d/logstash stop' >> /usr/local/bin/shutdown.sh
+    - name: Enable Logstash service when CentOS 6
+      service:
+        name: logstash
+        enabled: yes
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+      
+    - name: Enable Logstash service when CentOS 7
+      systemd:
+        name: logstash
+        enabled: yes
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'

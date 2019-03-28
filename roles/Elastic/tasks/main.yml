@@ -2,55 +2,28 @@
     # tasks file for /etc/ansible/roles/elastic
     - name: Create the directory structure 
       file:
-        path: /opt/elasticsearch/{{item}}
+        path: /opt/app/acm/{{item}}
         state: directory
         mode: 0755
       with_items: 
-      - /certs
-      - /data
-      - /logs
-      - /private
-      - /conf
-      - /conf/scripts
+      - /certs          #/var/lib/elasticsearch/certs TBD with David
 
-    - name: Copy the JAVA binary
+#Discuss with David if this is an appropriate way of handling the issue      
+    - name: Include InstallJAVA role
+      include_role:
+        name: InstallJAVA
+        
+    - name: Copy the ElasticSearch repo
       copy:
-        src: "{{ JAVA_PACKAGE }}"
-        dest: /tmp/java/
-
-    - name: Install JAVA
-      yum:
-        name: /tmp/java/{{ JAVA_PACKAGE }}
-        state: present
-
-    - name: Delete the java rpm file
-      file:
-        path: /tmp/java
-        state: absent
-
-    - name: Copy the ElasticSearch binary
-      copy:
-        src: "{{ ELASTICSEARCH_PACKAGE }}"
-        dest: /tmp/elastic/
+        src: elasticsearch.repo
+        dest: /etc/yum.repos.d/
 
     - name: Install ElasticSearch
       yum:
-        name: /tmp/elastic/{{ ELASTICSEARCH_PACKAGE  }}
+        name: elasticsearch
         state: present
 
-    - name: Delete the ElasticSearch rpm file
-      file:
-        path: /tmp/elastic
-        state: absent
-
-    - name: Change the ownership on all files in /opt/elasticsearch/
-      file: 
-        dest: /opt/elasticsearch/
-        owner: elasticsearch
-        group: elasticsearch
-        mode: 0755
-        recurse: yes
-
+# Marjan will check if we need to execute this
     - name: Setting max open files for elasticsearch user
       shell: |
         echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
@@ -58,21 +31,32 @@
         echo "elasticsearch soft nofile 65536" >> /etc/security/limits.conf
         echo "elasticsearch hard nofile 65536" >> /etc/security/limits.conf
 
-    - name: Adding services to auto start
+    - name: Adding services to auto start for CentOS 6
+      service:
+        name: elasticsearch
+        enabled: yes
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+
+    - name: Adding services to auto start for CentOS 7
       systemd:
         name: elasticsearch
         enabled: yes
+        daemon_reload: yes
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
-    - name: Adding ElasticSearch to startup.sh & shutdown.sh scripts
-      shell: |
-        echo "service elasticsearch start" >> /usr/local/bin/startup.sh
-        echo "service elasticsearch stop" >> /usr/local/bin/shutdown.sh
+    - name: Start ElasticSearch CentOS 6
+      service:
+        name: elasticsearch
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
 
-    - name: Start ElasticSearch
+    - name: Start ElasticSearch CentOS 7
       systemd:
         name: elasticsearch
         state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
+# Marjan will check if we need this in phase 2
     - name: Setting index cat script
       shell: |
         echo "curl 'localhost:9200/_cat/indices?v'" >> /usr/local/bin/escat-index
@@ -80,181 +64,72 @@
     - name: Setting permision
       file: dest=/usr/local/bin/escat-index mode=a+x
 
+#Marjan will check if we need this in phase 2
     - name: Setting node cat script
       shell: |
         echo "curl 'localhost:9200/_cat/nodes?v'" >> /usr/local/bin/escat-node
 
+# This is connected with the previous task above
     - name: Setting permision
-      file: dest=/usr/local/bin/escat-node mode=a+x
-
-    - name: copy fix-ownership.sh
-      copy:
-        src: fix-ownership.sh
-        dest: /usr/local/bin/elasticsearch-setup-passwords
-            
-    - name: Setting ownership 
-      shell: echo "/usr/local/bin/fix-ownership.sh" >> /usr/local/bin/startup.sh
-
-    - name: Backup the default ElasticSearch configuration file
-      copy:
-        src: /etc/elasticsearch/elasticsearch.yml
-        dest: /opt/elasticsearch/conf/elasticsearch.yml.back
-        remote_src: yes           
-
-
-
-    ## Do we need this if we leave the installation in etc instead opt??        
-    ##    - name: Replace CONF_DIR    
-    ##      replace:
-    ##        path: /etc/rc.d/init.d/elasticsearch
-    ##        regexp: 'CONF_DIR=\\"/etc/elasticsearch\\"'
-    ##        replace: 'CONF_DIR=\\"/opt/elasticsearch/conf\\"'
-    ##        backup: yes
-
+      file: dest=/usr/local/bin/escat-node mode=a+x         
+ 
     - name: Copying ElasticSearch configuration files
       template:
         src: /templates/elasticsearch.yml
-        dest: /var/lib/elasticsearch/conf
+        dest: /etc/elasticsearch
+        backup: yes
 
-    # - name: Replace ES_PORT
-      # replace:
-        # path: /opt/elasticsearch/conf/elasticsearch.yml
-        # regexp: "\\$ES_PORT"
-        # replace: "{{ ES_PORT }}"
-        # backup: yes
-
-    - name: Copying ElasticSearch configuration files
-      copy:
-        src: /etc/elasticsearch/jvm.options
-        dest: /opt/elasticsearch/conf
-        remote_src: yes
-
-    - name: Copying ElasticSearch configuration files
-      copy:
-        src: /etc/elasticsearch/log4j2.properties
-        dest: /opt/elasticsearch/conf
-        remote_src: yes
-
-    - name: Change the ownership on all files in /opt/elasticsearch/
-      file: 
-        dest: /opt/elasticsearch/
-        owner: elasticsearch
-        group: elasticsearch
-        mode: 0755
-        recurse: yes
-
-    - name: Start ElasticSearch
+    - name: Start ElasticSearch for CentOS 6
+      service:
+        name: elasticsearch
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+        
+    - name: Start ElasticSearch for CentOS 7
       systemd: 
         name: elasticsearch
         state: started
         enabled: yes
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
     - name: Wait for 90 seconds for elasticsearch to become responsive...
       wait_for: timeout=90
       delegate_to: localhost
 
-    - name: Configuring elsaticsearch for acm_advanced_search
-      uri:
-        url: http://localhost:9200/acm_advanced_search?pretty
-        method: PUT
-        headers:
-          Content-Type: "application/json"
-        src: acmIndexConfig.json
-           
-    #      shell: 'curl -XPUT localhost:9200/acm_advanced_search?pretty -H "Content-Type: application/json" --data-binary @/etc/elasticsearch/acmIndexConfig.json'
-          
-    - name: Configuring elsaticsearch for acm_quick_search
-      uri:
-        url: http://localhost:9200/acm_quick_search?pretty
-        method: PUT
-        headers:
-          Content-Type: "application/json"
-        src: acmIndexConfig.json
-                   
-    #      shell: 'curl -XPUT localhost:9200/acm_quick_search?pretty -H "Content-Type: application/json" --data-binary @$/etc/ansible/acmIndexConfig.json'
-
-    - name: Configuring elsaticsearch for acm_log_search
-      uri:
-        url: http://localhost:9200/acm_log_search?pretty
-        method: PUT
-        headers:
-          Content-Type: "application/json"
-        src: acmIndexConfig.json
-            
-    #      shell: 'curl -XPUT localhost:9200/acm_log_search?pretty -H "Content-Type: application/json" --data-binary @/etc/ansible/acmIndexConfig.json'
-
-    - name: Stopping ElasticSearch
+    - name: Stopping ElasticSearch if CentOS 6
+      service:
+        name: elasticsearch
+        state: stopped
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+      
+    - name: Stopping ElasticSearch if CentOS 7
       systemd:
         name: elasticsearch
         state: stopped
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
-    - name: chmod
-    ##    file: dest=opt/elasticsearch/conf/* mode=a+x
-      shell: chmod 644 /opt/elasticsearch/conf/*
+    - name: Copy files from /usr/share/elasticsearch/bin
+      copy:
+        src: /usr/share/elasticsearch/bin/
+        dest: /opt/app/elasticsearch/bin/
+        remote_src: yes
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 755
+      
+    - name: Start ElasticSearch CentOS 6
+      service:
+        name: elasticsearch
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
 
-    - name: Passwords for build in accounts ,elastic, kibana, logstash
+    - name: Start ElasticSearch
       systemd:
         name: elasticsearch
         state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
     - name: Sleep for 90 seconds
       wait_for: timeout=90
       delegate_to: localhost
-            
-    # - name: Generate ELK Passwords
-      # shell: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -b -v > passwords
-      # ignore_errors: true
 
-    - name: Get Elastic password
-      shell: grep "PASSWORD elastic = " /passwords | awk '{print $4}'
-      register: elasticpassword    
- 
-# Dont delete 
-    # - name: elasticpass
-      # uri:
-        # url: http://localhost:9200/_xpack/security/user/elastic/_password?pretty
-        # method: POST
-        # user: elastic
-        # pass: "{{ elasticpassword.stdout }}"
-        # headers:
-          # Content-Type: "application/json"
-        # body: "{ 'password': 'elasticpass' }"
-            
-    #      shell: 'curl -XPOST -u elastic:`grep "PASSWORD elastic = " /passwords | awk '{print $4}'` localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
-    #        {
-    #          "password": "elasticpass"
-    #        }'
-
-# Dont delete    
-    # - name: kibanapass
-      # uri:
-        # url: http://localhost:9200/_xpack/security/user/kibana/_password?pretty
-        # method: POST
-        # user: elastic
-        # pass: elasticpass
-        # headers:
-          # Content-Type: "application/json"
-        # body: "{ 'password': 'kibanapass' }"
-    #      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/kibana/_password?pretty -H "Content-Type: application/json" -d
-    #        {
-    #          "password": "kibanapass"
-    #        }'
-
-#Dont delete    
-    # - name: logstashpass
-      # uri:
-        # url: http://localhost:9200/_xpack/security/user/logstash_system/_password?pretty
-        # method: POST
-        # user: elastic
-        # pass: elasticpass
-        # headers:
-          # Content-Type: "application/json"
-        # body: "{ 'password': 'logstashpass' }"
-    #      shell: 'curl -XPOST -u elastic:elasticpass localhost:9200/_xpack/security/user/logstash_system/_password?pretty -H "Content-Type: application/json" -d
-    #        {
-    #          "password": "logstashpass"
-    #        }'
-
-    #Dont delete
-    # - name: Remove passwords
-      # shell: rm /passwords -f

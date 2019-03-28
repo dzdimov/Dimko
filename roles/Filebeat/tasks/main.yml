@@ -1,57 +1,44 @@
 ---
 # tasks file for /etc/ansible/GIT/Dimko/roles/Filebeat
-    - name: Copy the Filebeat rpm file to the remote host
+    - name: Download and install the public signing key
+      shell: sudo rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+      
+    - name: Copy the Filebeat repo to the remote host
       copy:
-        src: "{{ FILEBEAT_PACKAGE }}"
-        dest: /tmp/filebeat/
+        src: elastic.repo
+        dest: /etc/yum.repos.d/
       
     - name: Install the filebeat binary
       yum:
-        name: /tmp/filebeat/{{ FILEBEAT_PACKAGE }}
+        name: filebeat
         state: present
-      
-    - name: Delete the filebeat binary
-      file:
-        path: /tmp/filebeat
-        state: absent
 
     - name: Create directories
       file:
-        path: /opt/filebeat/{{item}}
+        path: /opt/app/acm/filebeat/{{item}}
         state: directory
         mode: 0755
       with_items:
       - /private
       - /certs
-
-## Do we need this?      
-##    - name: Installing filebeat
-##      shell: |
-##        tar xvzf $1/$FILEBEAT_PACKAGE -C /opt/filebeat --strip-components=1
-     
-    - name: Copy filebeat-sc
-      copy:
-        src: filebeat-sc
-        dest: /etc/init.d/filebeat
-        
-    - name: Replace FILEBEAT_DIR
+   
+    - name: Replace path.home
       replace:
         path: /etc/init.d/filebeat
-        regexp: "//$FILEBEAT_DIR"
-        replace: "{{ FILEBEAT_DIR }}"
+        regexp: "args="-c /etc/filebeat/filebeat.yml -path.home /usr/share/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat""
+        replace: "args="-c /etc/filebeat/filebeat.yml -path.home /opt/app/acm/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat""
         backup: yes
-    
-    - name: Replace the FILEBEAT_SERVICE_USER
+        
+    - name: Replace wrapper
       replace:
         path: /etc/init.d/filebeat
-        regexp: "//$FILEBEAT_SERVICE_USER"
-        replace: "{{ FILEBEAT_SERVICE_USER }}"
+        regexp: "wrapper="/usr/share/filebeat/bin/filebeat-god""
+        replace: "wrapper="/opt/app/acm/filebeat/bin/filebeat-god""
         backup: yes
         
     - name: Creating FileBeat User
       user:
         name: "{{ FILEBEAT_SERVICE_USER }}"
-##     shell: useradd $FILEBEAT_SERVICE_USER
       
     - name: Setting password for FileBeat user
       debug:
@@ -68,20 +55,12 @@
         group: "{{ FILEBEAT_SERVICE_USER }}"
         mode: 0755
         recurse: yes
-##      shell: chown -R $FILEBEAT_SERVICE_USER:$FILEBEAT_SERVICE_USER $FILEBEAT_DIR
-
-###### This is not needed since I copy the file in the begining       
-##    - name: Copy filebeat script to init.directories
-##      shell: cp $1/$FILEBEAT_SCRIPT /etc/init.d/filebeat
       
     - name: Make filebeat executable
-      shell: chmod +x /etc/init.d/filebeat
-      
-##    - name: Copy the certificates to remote machine
-##      copy:
-##        src: certs/
-##        dest: /tmp/filebeat/certs
-        
+      file:
+        dest: /etc/init.d/filebeat
+        mode: a+x
+
     - name: Install certificates for filebeat->logstash tls communication
       copy:
         src: acm-elasticsearch-server-client.cert.pem
@@ -96,15 +75,12 @@
       copy:
         src: ca-chain.cert.pem
         dest: '"{{ FILEBEAT_DIR }}"/certs/'
-      
-    - name: Adding filebeat to startup and shutdown scripts
-      shell: |
-        echo '/etc/init.d/filebeat start' >> /usr/local/bin/startup.sh
-        echo '/etc/init.d/filebeat stop' >> /usr/local/bin/shutdown.sh
         
-    
-
-
+      
+    - name: Delete the default config file for FILEBEAT_DIR
+      file:
+        path: '"{{ FILEBEAT_CONF_DIR }}"/filebeat.yml'
+        state: absent
 
     - name: Copy Filebeat config file - filebeat.yml   ????  (Proveri dali ke go iskopira i preimeni file-ot)
       copy:
@@ -124,11 +100,7 @@
         owner: filebeat
         group: filebeat
         recurse: yes
-        
-    - name: Delete the default config file for FILEBEAT_DIR
-      file:
-        path: '"{{ FILEBEAT_CONF_DIR }}"/filebeat.yml'
-        state: absent
+
 
 ## Should this remain or the dir needs to be {{FILEBEAT_CONF_DIR}}/conf.d        
     - name: Create filebeat_conf directory
@@ -215,7 +187,8 @@
       copy:
         src: filebeat_configs/{{ FILEBEAT_ELK_FLATTENED_CONFIG_FILE }}
         dest: '"{{ FILEBEAT_DIR }}"/filebeat.yml'
-        
+
+# Do we need this?        
     - name: Copy the kibana default dashboard to /opt/kibana/kibanaDefaultDashboard/
       copy:
         src: kibanaDefaultDashboard/

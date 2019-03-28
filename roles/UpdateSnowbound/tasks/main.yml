@@ -1,30 +1,68 @@
 ---
 # tasks file for UpdateSnowbound
-    - name: Create the directory for snowbound.war deployment
-      stat:
-        path: /opt/app/acm/snowbound
+    - name: Create snowbound installables directory
+      file:
+        path: "{{ arkcase_base_dir }}/snowbound"
         state: directory
-      register: state
+        mode: 0755
+        owner: "{{ snowbound_user }}"
+        group: "{{ snowbound_user }}"
+        seuser: system_u
+        serole: object_r
+        setype: usr_t
+        selevel: s0
+      become: no
+
+    - name: Create the staging directory on localhost
+      file:
+        path: "/tmp/{{ snowbound_version_def }}_snowbound"
+        state: directory
+        mode: 0777
+        seuser: system_u
+        serole: object_r
+        setype: tmp_t
+        selevel: s0
+      delegate_to: localhost
+
+    - name: A specific version of Snowbound was requested, download that version 
+      command: "scp svc.ansible@{{ bamboo_server }}:/opt/app/application-data/bamboo/artifacts/plan-{{ snowbound_build_plan }}/shared/build-{{ snowbound_version_def }}/Snowbound-war/VirtualViewerJavaHTML5.war /tmp/{{ snowbound_version_def }}_snowbound/VirtualViewerJavaHTML5.war"
+      when: snowbound_version_def != "00000"
+      become: no
+      delegate_to: localhost
+
+    - name: Downloading the latest Artifact
+      command: "scp svc.ansible@{{ bamboo_server }}:/opt/app/application-data/bamboo/xml-data/build-dir/11665409/ARK-BSTAU-JOB1/target/VirtualViewerJavaHTML5.war /tmp/{{ snowbound_version_def }}_snowbound/VirtualViewerJavaHTML5.war"
+      when: snowbound_version_def == "00000"
+      become: no
+      delegate_to: localhost
 
     - name: Copy the new snowbound war file
       copy:
-        src: VirtualViewerJavaHTML5.war
-        dest: /opt/app/acm/snowbound/webapps/VirtualViewerJavaHTML5.war
+        src: "/tmp/{{ snowbound_version_def }}_snowbound/VirtualViewerJavaHTML5.war"
+        dest: "{{ arkcase_base_dir }}/snowbound/webapps/VirtualViewerJavaHTML5.war"
         backup: yes
-      when: state.stat.isdir is defined and state.stat.isdir
-        
-    - name: Change the ownership of the new snowbound war file
-      file:
-        path: /opt/app/acm/snowbound/webapps/VirtualViewerJavaHTML5.war
-        owner: snowbound
-        group: snowbound
-        mode: 0755
-      when: state.stat.isdir is defined and state.stat.isdir
-        
+        owner: "{{ snowbound_user }}"
+        group: "{{ snowbound_user }}"
+        seuser: system_u
+        serole: object_r
+        setype: usr_t
+        selevel: s0
+        mode:  0755
+      register: snowbound_deploy
+
     - name: Include Restart Role
       include_role: 
         name: RestartService
       vars:
         service_name: snowbound
-      when: state.stat.isdir is defined and state.stat.isdir
-      
+      when: snowbound_deploy.changed
+
+    - name: Wait for the web.xml
+      wait_for:
+        path: "{{ arkcase_base_dir }}/snowbound/webapps/VirtualViewerJavaHTML5/WEB-INF/web.xml"
+
+    - name: Clean up the local copy of the war
+      file:
+        path: "/tmp/{{ snowbound_version_def }}_snowbound"
+        state: absent
+      delegate_to: localhost
