@@ -1,0 +1,10 @@
+{
+  "visState": "{\"title\":\"Total Events\",\"type\":\"metric\",\"params\":{\"handleNoResults\":true,\"fontSize\":\"44\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{\"customLabel\":\"#Events\"}}],\"listeners\":{}}", 
+  "description": "", 
+  "title": "Total Events", 
+  "uiStateJSON": "{}", 
+  "version": 1, 
+  "kibanaSavedObjectMeta": {
+    "searchSourceJSON": "{\"index\":\"logstash-*\",\"query\":{\"query_string\":{\"query\":\"*\",\"analyze_wildcard\":true}},\"filter\":[]}"
+  }
+}

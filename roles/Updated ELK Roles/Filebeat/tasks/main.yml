@@ -1,0 +1,195 @@
+---
+# tasks file for /etc/ansible/GIT/Dimko/roles/Filebeat
+    - name: Download and install the public signing key
+      shell: sudo rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+      
+    - name: Copy the Filebeat repo to the remote host
+      copy:
+        src: elastic.repo
+        dest: /etc/yum.repos.d/
+      
+    - name: Install the filebeat binary
+      yum:
+        name: filebeat
+        state: present
+
+    - name: Create directories
+      file:
+        path: /opt/app/acm/filebeat/{{item}}
+        state: directory
+        mode: 0755
+      with_items:
+      - /private
+      - /certs
+   
+    - name: Replace path.home
+      replace:
+        path: /etc/init.d/filebeat
+        regexp: "args="-c /etc/filebeat/filebeat.yml -path.home /usr/share/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat""
+        replace: "args="-c /etc/filebeat/filebeat.yml -path.home /opt/app/acm/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat""
+        backup: yes
+        
+    - name: Replace wrapper
+      replace:
+        path: /etc/init.d/filebeat
+        regexp: "wrapper="/usr/share/filebeat/bin/filebeat-god""
+        replace: "wrapper="/opt/app/acm/filebeat/bin/filebeat-god""
+        backup: yes
+        
+    - name: Creating FileBeat User
+      user:
+        name: "{{ FILEBEAT_SERVICE_USER }}"
+      
+    - name: Setting password for FileBeat user
+      debug:
+        msg:"{{ FILEBEAT_SERVICE_PASS }}\n{{ FILEBEAT_SERVICE_PASS }}" | passwd {{ FILEBEAT_SERVICE_USER }}
+
+    - name: Unset
+      debug:
+        msg: unset {{ FILEBEAT_SERVICE_PASS }}
+      
+    - name: Setting ownership for FileBeat user to filebeat directory
+      file:
+        dest: "{{ FILEBEAT_DIR }}"
+        owner: "{{ FILEBEAT_SERVICE_USER }}"
+        group: "{{ FILEBEAT_SERVICE_USER }}"
+        mode: 0755
+        recurse: yes
+      
+    - name: Make filebeat executable
+      file:
+        dest: /etc/init.d/filebeat
+        mode: a+x
+
+    - name: Install certificates for filebeat->logstash tls communication
+      copy:
+        src: acm-elasticsearch-server-client.cert.pem
+        dest: '"{{ FILEBEAT_DIR }}"/certs/'
+        
+    - name: Install certificates for filebeat->logstash tls communication 2
+      copy:
+        src: acm-elasticsearch-server-client.key.pem
+        dest: '"{{ FILEBEAT_DIR }}"/private/'
+        
+    - name: Install certificates for filebeat->logstash tls communication 3
+      copy:
+        src: ca-chain.cert.pem
+        dest: '"{{ FILEBEAT_DIR }}"/certs/'
+        
+      
+    - name: Delete the default config file for FILEBEAT_DIR
+      file:
+        path: '"{{ FILEBEAT_CONF_DIR }}"/filebeat.yml'
+        state: absent
+
+    - name: Copy Filebeat config file - filebeat.yml   ????  (Proveri dali ke go iskopira i preimeni file-ot)
+      copy:
+        src: "{{ FILEBEAT_ELK_CONFIG_FILE }}"
+        dest: '"{{ FILEBEAT_DIR }}"/filebeat.yml'
+      
+    - name: Setting Filebeat config file - filebeat.yml
+      replace:
+        path: '"{{ FILEBEAT_DIR }}"/filebeat.yml'
+        regexp: "\\$ELK_PORT"
+        replace: "{{ ELK_PORT }}"
+        backup: yes
+
+    - name: Change ownership
+      file:
+        dest: '"{{ FILEBEAT_DIR }}"/'
+        owner: filebeat
+        group: filebeat
+        recurse: yes
+
+
+## Should this remain or the dir needs to be {{FILEBEAT_CONF_DIR}}/conf.d        
+    - name: Create filebeat_conf directory
+      file:
+        path: '"{{ FILEBEAT_CONF_DIR }}"/conf.d/filebeat'
+        state: directory
+        mode: 0755
+        
+    - name: Copy the config files
+      copy:
+        src: filebeat_configs/
+        dest: '{{ FILEBEAT_DIR }}/conf.d/'
+        
+    - name: Change the FREVVO_LOG_PATH
+      replace:
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_FREVVO_CONFIG_FILE }}'
+        regexp: "//$FREVVO_LOG_PATH"
+        replace: "{{ FREVVO_LOG_PATH }}"
+        backup: yes
+        
+    - name: Change the LOGSTASH_FREVVO_PORT
+      replace:
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_FREVVO_CONFIG_FILE }}'
+        regexp: "//$LOGSTASH_FREVVO_PORT"
+        replace: "{{ LOGSTASH_FREVVO_PORT }}"
+        backup: yes
+        
+    - name: Change the ALF_HOME
+      replace:
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_ALF_CONFIG_FILE }}'
+        regexp: "//$ALF_HOME"
+        replace: "{{ ALF_HOME }}"
+        backup: yes
+        
+    - name: Change the LOGSTASH_ALF_PORT
+      replace:
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_ALF_CONFIG_FILE }}'
+        regexp: "//$LOGSTASH_ALF_PORT"
+        replace: "{{ LOGSTASH_ALF_PORT }}"
+        backup: yes
+        
+    - name: Change the PENTAHO_HOME
+      replace:
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_PENTAHO_CONFIG_FILE }}'
+        regexp: "//$PENTAHO_HOME"
+        replace: "{{ PENTAHO_HOME }}"
+        backup: yes
+        
+    - name: Chenge the LOGSTASH_PENTAHO_PORT
+      replace:
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_PENTAHO_CONFIG_FILE }}'
+        regexp: "//$LOGSTASH_PENTAHO_PORT"
+        replace: "{{ LOGSTASH_PENTAHO_PORT }}"
+        backup: yes
+        
+    - name: Change the SNOWBOUND_HOME
+      replace:
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_SNOWBOUND_CONFIG_FILE }}'
+        regexp: "//$SNOWBOUND_HOME"
+        replace: "{{ SNOWBOUND_HOME }}"
+        backup: yes
+        
+    - name: Change the LOGSTASH_SNOWBOUND_PORT
+      replace:
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_SNOWBOUND_CONFIG_FILE }}'
+        regexp: "//$LOGSTASH_SNOWBOUND_PORT"
+        replace: "{{ LOGSTASH_SNOWBOUND_PORT }}"
+        
+    - name: Change the MYSQL_HOME
+      replace:
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_MYSQL_CONFIG_FILE }}'
+        regexp: "//$MYSQL_HOME"
+        replace: "{{ MYSQL_HOME }}"
+        backup: yes
+        
+    - name: Change the LOGSTASH_MYSQL_PORT
+      replace:
+        path: '{{ FILEBEAT_DIR }}/conf.d/{{ FILEBEAT_MYSQL_CONFIG_FILE }}'
+        regexp: "//$LOGSTASH_MYSQL_PORT"
+        replace: "{{ LOGSTASH_MYSQL_PORT }}"
+        backup: yes
+        
+    - name: Copy the FILEBEAT_ELK_FLATTENED_CONFIG_FILE
+      copy:
+        src: filebeat_configs/{{ FILEBEAT_ELK_FLATTENED_CONFIG_FILE }}
+        dest: '"{{ FILEBEAT_DIR }}"/filebeat.yml'
+
+# Do we need this?        
+    - name: Copy the kibana default dashboard to /opt/kibana/kibanaDefaultDashboard/
+      copy:
+        src: kibanaDefaultDashboard/
+        dest: /opt/kibana/kibanaDefaultDashboard/

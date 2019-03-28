@@ -1,0 +1,13 @@
+{
+                "mappings" : {
+                "type1" : {
+                "properties" : {
+                "@timestamp" : { "type" : "date","copy_to": false },
+                "loglevel": { "type": "text", "norms": false, "fields": { "keyword": { "type": "keyword" } } },
+                "host": { "type": "text", "norms": false, "fields": { "keyword": { "type": "keyword" } } },
+                "bytes": { "type": "long" },
+                "response": { "type": "long" }
+                    }
+                  }
+                }
+}

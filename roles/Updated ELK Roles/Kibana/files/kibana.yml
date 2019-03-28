@@ -1,0 +1,17 @@
+server.port: 5601
+server.host: "0.0.0.0"
+server.name: "acm-kibana"
+kibana.index: ".kibana"
+
+# SSL for outgoing requests from the Kibana Server (PEM formatted)
+server.ssl.enabled: true
+server.ssl.key: /opt/kibana/private/acm-elasticsearch.key.pem
+server.ssl.certificate: /opt/kibana/cert/acm-elasticsearch.cert.pem
+
+
+elasticsearch.ssl.certificateAuthorities: ["/opt/kibana/cert/ca-chain.cert.pem"]
+
+elasticsearch.url: "https://acm-elasticsearch:443"
+
+elasticsearch.username: "kibana"
+elasticsearch.password: "kibanapass"

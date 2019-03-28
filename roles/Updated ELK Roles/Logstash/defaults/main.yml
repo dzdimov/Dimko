@@ -1,0 +1,17 @@
+---
+# defaults file for /etc/ansible/GIT/Dimko/roles/Logstash
+ES_DIR: "/opt/elasticsearch"
+LOGSTASH_MYSQL_PORT: "5043"
+LOGSTASH_ALF_PORT: "5042"
+LOGSTASH_FREVVO_PORT: "5041"
+LOGSTASH_SNOWBOUND_PORT: "5040"
+LOGSTASH_PENTAHO_PORT: "5039"
+ELK_PORT: "5044"
+KEY_PASS: "AcMd3v"
+ES_PORT: "9200"
+LS_HOME: "/opt/app/logstash"
+LS_START_UP_OPTIONS_PATH: "/opt/logstash"
+LOGSTASH_CONFIG_FILE_01: "01-input.conf"
+LOGSTASH_CONFIG_FILE_99: "99-output.conf"
+LOGSTASH_PACKAGE: "logstash-6.6.0.rpm"
+LOGSTASH_CONF_DIR: "/opt/logstash/conf.d"

@@ -1,0 +1,3 @@
+---
+# defaults file for /etc/ansible/GIT/Dimko/roles/Kibana
+KIBANA_PACKAGE: "kibana-6.6.0-x86_64.rpm"

@@ -1,0 +1,135 @@
+---
+    # tasks file for /etc/ansible/roles/elastic
+    - name: Create the directory structure 
+      file:
+        path: /opt/app/acm/{{item}}
+        state: directory
+        mode: 0755
+      with_items: 
+      - /certs          #/var/lib/elasticsearch/certs TBD with David
+
+#Discuss with David if this is an appropriate way of handling the issue      
+    - name: Include InstallJAVA role
+      include_role:
+        name: InstallJAVA
+        
+    - name: Copy the ElasticSearch repo
+      copy:
+        src: elasticsearch.repo
+        dest: /etc/yum.repos.d/
+
+    - name: Install ElasticSearch
+      yum:
+        name: elasticsearch
+        state: present
+
+# Marjan will check if we need to execute this
+    - name: Setting max open files for elasticsearch user
+      shell: |
+        echo "elasticsearch soft nproc 4096" >> /etc/security/limits.conf
+        echo "elasticsearch hard nproc 4096" >> /etc/security/limits.conf
+        echo "elasticsearch soft nofile 65536" >> /etc/security/limits.conf
+        echo "elasticsearch hard nofile 65536" >> /etc/security/limits.conf
+
+    - name: Adding services to auto start for CentOS 6
+      service:
+        name: elasticsearch
+        enabled: yes
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+
+    - name: Adding services to auto start for CentOS 7
+      systemd:
+        name: elasticsearch
+        enabled: yes
+        daemon_reload: yes
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Start ElasticSearch CentOS 6
+      service:
+        name: elasticsearch
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+
+    - name: Start ElasticSearch CentOS 7
+      systemd:
+        name: elasticsearch
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+# Marjan will check if we need this in phase 2
+    - name: Setting index cat script
+      shell: |
+        echo "curl 'localhost:9200/_cat/indices?v'" >> /usr/local/bin/escat-index
+
+    - name: Setting permision
+      file: dest=/usr/local/bin/escat-index mode=a+x
+
+#Marjan will check if we need this in phase 2
+    - name: Setting node cat script
+      shell: |
+        echo "curl 'localhost:9200/_cat/nodes?v'" >> /usr/local/bin/escat-node
+
+# This is connected with the previous task above
+    - name: Setting permision
+      file: dest=/usr/local/bin/escat-node mode=a+x         
+ 
+    - name: Copying ElasticSearch configuration files
+      template:
+        src: /templates/elasticsearch.yml
+        dest: /etc/elasticsearch
+        backup: yes
+
+    - name: Start ElasticSearch for CentOS 6
+      service:
+        name: elasticsearch
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+        
+    - name: Start ElasticSearch for CentOS 7
+      systemd: 
+        name: elasticsearch
+        state: started
+        enabled: yes
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Wait for 90 seconds for elasticsearch to become responsive...
+      wait_for: timeout=90
+      delegate_to: localhost
+
+    - name: Stopping ElasticSearch if CentOS 6
+      service:
+        name: elasticsearch
+        state: stopped
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+      
+    - name: Stopping ElasticSearch if CentOS 7
+      systemd:
+        name: elasticsearch
+        state: stopped
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Copy files from /usr/share/elasticsearch/bin
+      copy:
+        src: /usr/share/elasticsearch/bin/
+        dest: /opt/app/elasticsearch/bin/
+        remote_src: yes
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 755
+      
+    - name: Start ElasticSearch CentOS 6
+      service:
+        name: elasticsearch
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+
+    - name: Start ElasticSearch
+      systemd:
+        name: elasticsearch
+        state: started
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Sleep for 90 seconds
+      wait_for: timeout=90
+      delegate_to: localhost
+
