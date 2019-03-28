@@ -2,6 +2,7 @@
 # tasks file for /etc/ansible/GIT/Dimko/roles/Filebeat
     - name: Download and install the public signing key
       shell: sudo rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+      become: yes
       
     - name: Copy the Filebeat repo to the remote host
       copy:
