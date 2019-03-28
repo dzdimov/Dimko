@@ -25,15 +25,15 @@
     - name: Replace path.home
       replace:
         path: /etc/init.d/filebeat
-        regexp: "args="-c /etc/filebeat/filebeat.yml -path.home /usr/share/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat""
-        replace: "args="-c /etc/filebeat/filebeat.yml -path.home /opt/app/acm/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat""
+        regexp: 'args="-c /etc/filebeat/filebeat.yml -path.home /usr/share/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat"'
+        replace: 'args="-c /etc/filebeat/filebeat.yml -path.home /opt/app/acm/filebeat -path.config /etc/filebeat -path.data /var/lib/filebeat -path.logs /var/log/filebeat"'
         backup: yes
         
     - name: Replace wrapper
       replace:
         path: /etc/init.d/filebeat
-        regexp: "wrapper="/usr/share/filebeat/bin/filebeat-god""
-        replace: "wrapper="/opt/app/acm/filebeat/bin/filebeat-god""
+        regexp: 'wrapper="/usr/share/filebeat/bin/filebeat-god"'
+        replace: 'wrapper="/opt/app/acm/filebeat/bin/filebeat-god"'
         backup: yes
         
     - name: Creating FileBeat User
@@ -55,7 +55,15 @@
         group: "{{ FILEBEAT_SERVICE_USER }}"
         mode: 0755
         recurse: yes
-      
+    
+    - name: Copy filebeat from usr/share to /opt/app/acm/filebeat
+      copy:
+        src: /usr/share/filebeat/
+        dest: /opt/app/acm/filebeat/
+        group: filebeat
+        owner: filebeat
+        mode: 0755
+    
     - name: Make filebeat executable
       file:
         dest: /etc/init.d/filebeat
@@ -192,4 +200,4 @@
     - name: Copy the kibana default dashboard to /opt/kibana/kibanaDefaultDashboard/
       copy:
         src: kibanaDefaultDashboard/
-        dest: /opt/kibana/kibanaDefaultDashboard/
+        dest: /opt/app/acm/kibana/kibanaDefaultDashboard/
