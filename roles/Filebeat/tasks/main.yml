@@ -62,6 +62,7 @@
 
     - name: Change ownership of all files in /opt/app/acm/filebeat
       file:
+        path: "{{ FILEBEAT_DIR }}"
         group: filebeat
         owner: filebeat
         mode: 0755
