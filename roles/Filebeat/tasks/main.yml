@@ -58,13 +58,14 @@
         recurse: yes
     
     - name: Copy filebeat from usr/share to /opt/app/acm/filebeat
-      copy:
-        src: /usr/share/filebeat/
-        dest: /opt/app/acm/filebeat
+      command: cp -R /usr/share/filebeat/ /opt/app/acm/
+
+    - name: Change ownership of all files in /opt/app/acm/filebeat
+      file:
         group: filebeat
         owner: filebeat
         mode: 0755
-        remote_src: yes
+        recurse: yes
     
     - name: Make filebeat executable
       file:
