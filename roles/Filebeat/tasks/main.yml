@@ -64,6 +64,7 @@
         group: filebeat
         owner: filebeat
         mode: 0755
+        remote_src: yes
     
     - name: Make filebeat executable
       file:
