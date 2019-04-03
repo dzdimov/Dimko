@@ -5,7 +5,7 @@
       url: https://{{ ALF_HOST }}:{{ ALF_PORT }}/alfresco/s/api/site/folder/acm/documentlibrary
       method: POST
       user: admin
-      pass: admin
+      password: admin
       headers:
         Content-Type: "application/json"
       src: file.json
