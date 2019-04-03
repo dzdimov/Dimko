@@ -6,7 +6,7 @@
       method: POST
       user: admin
       password: admin
-      body: '{ \"name\": \"Recycle Bin\", \"title\": \"Recycle Bin\"}'
+      body: '{"name": "Recycle Bin", "title": "Recycle Bin"}'
       body_format: json
       status_code: 200, 500
       headers:
