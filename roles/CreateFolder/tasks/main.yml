@@ -10,6 +10,6 @@
         # Content-Type: "application/json"
       # src: file.json
     - name: Execute CURL to create new folder
-      command: curl -k -u admin:admin -H "content-type: application/json" -d "{ \"name\": \"Recycle Bin1\", \"title\": \"Recycle Bin1\"}" -X POST "https://acm-alfresco:8443/alfresco/s/api/site/folder/acm/documentlibrary"
+      command: "curl -k -u admin:admin -H "content-type: application/json" -d "{ \"name\": \"Recycle Bin1\", \"title\": \"Recycle Bin1\"}" -X POST "https://acm-alfresco:8443/alfresco/s/api/site/folder/acm/documentlibrary""
       
     
