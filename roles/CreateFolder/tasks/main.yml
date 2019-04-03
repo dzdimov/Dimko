@@ -8,7 +8,7 @@
       password: admin
       body: '{"name": "Recycle Bin", "title": "Recycle Bin"}'
       body_format: json
-      status_code: 200, 500
+     # status_code: 200, 500
       headers:
         Content-Type: "application/json"
   # - name: Execute CURL to create new folder
