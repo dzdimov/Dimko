@@ -11,6 +11,7 @@
      # status_code: 200, 500
       headers:
         Content-Type: "application/json"
+      ignore_errors: true
   # - name: Execute CURL to create new folder
     # command: 'curl -k -u {{ ALF_USER }}:{{ ALF_PASS }} -H "content-type: application/json" -d "{ \"name\": \"Recycle Bin\", \"title\": \"Recycle Bin\"}" -X POST "https://{{ ALF_HOST }}:{{ ALF_PORT }}/alfresco/s/api/site/folder/acm/documentlibrary"'
       
