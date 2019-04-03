@@ -1,2 +1,6 @@
 ---
 # defaults file for CreateFolder
+ALF_USER: "admin"
+ALF_PASS: "admin"
+ALF_HOST: "acm-alfresco"
+ALF_PORT: "8443"

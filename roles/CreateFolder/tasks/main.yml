@@ -1,2 +1,11 @@
 ---
 # tasks file for CreateFolder
+  - name: Execute CURL 2
+    uri:
+      url: https://{{ ALF_HOST }}:{{ ALF_PORT }}/alfresco/s/api/site/folder/acm/documentlibrary
+      method: POST
+      user: "{{ ALF_USER }}"
+      pass: "{{ ALF_PASS }}"
+      headers:
+        Content-Type: "application/json"
+      src: file.json
