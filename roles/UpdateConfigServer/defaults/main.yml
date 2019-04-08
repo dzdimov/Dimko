@@ -1,2 +1,5 @@
 ---
 # defaults file for UpdateConfigServer
+configserver_version_def: "00000"
+configserver_build_plan: ##NEEDS TO BE CHECKED
+bamboo_server: "10.60.10.41"

@@ -1,2 +1,4 @@
 ---
 # vars file for UpdateConfigServer
+arkcase_base_dir: /opt/app/acm
+configserver_user: arkuser

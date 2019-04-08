@@ -5,8 +5,8 @@
       path: "{{ arkcase_base_dir }}"/config-server
       state: directory
       mode: 0755
-      owner: "{{ arkuser }}"
-      group: "{{ arkuser }}"
+      owner: "{{ configserver_user }}"
+      group: "{{ configserver_user }}"
       seuser: system_u
       serole: object_r
       setype: usr_t
@@ -41,13 +41,13 @@
     copy:
       src: "/tmp/{{ configserver_version_def }}_configserver/config-server.jar"
       dest: "{{ arkcase_base_dir }}/config-server"
-      owner: "{{ arkuser }}"
-      group: "{{ arkuser }}"
+      owner: "{{ configserver_user }}"
+      group: "{{ configserver_user }}"
       seuser: system_u
       serole: object_r
       setype: tmp_t
       selevel: s0
-    become_user: "{{ arkuser }}"
+    become_user: "{{ configserver_user }}"
     become: yes
     register: configserver_deploy
     
