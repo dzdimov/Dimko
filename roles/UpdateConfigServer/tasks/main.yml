@@ -1,2 +1,59 @@
 ---
 # tasks file for UpdateConfigServer
+  - name: Create the Config Server installables directory
+    file:
+      path: "{{ arkcase_base_dir }}"/config-server
+      state: directory
+      mode: 0755
+      owner: "{{ arkuser }}"
+      group: "{{ arkuser }}"
+      seuser: system_u
+      serole: object_r
+      setype: usr_t
+      selevel: s0
+      
+  - name: Create the staging directory on localhost
+    file:
+      path: "/tmp/{{ configserver_version_def }}_configserver"
+      state: directory
+      mode: 0777
+      seuser: system_u
+      serole: object_r
+      setype: tmp_t
+      selevel: s0
+    delegate_to: localhost
+    
+  - name: A specific version of config-server was requested, download that version
+    command: "scp {{ bamboo_server }}:/opt/app/application-data/bamboo/artifacts/plan-{{ CONFIGSERVER_BUILD_PLAN }}/shared/build-{{ configserver_version_def }}/configserver-jar/config-server.jar /tmp/{{ configserver_version_def }}_configserver/config-server.jar" ## CHECK THE PATH
+    when: configserver_version_def != "00000"
+    become_user: svc.ansible
+    become: yes
+    delegate_to: localhost
+    
+  - name: Downloading the latest artifact
+    command: "scp {{bamboo_server}}:/opt/app/application-data/bamboo/xml-data/build-dir/11665409/ARK-BSTAU-JOB1/target/config-server.jar /tmp/{{ configserver_version_def }}_configserver/config-server.jar" ##CHECK THE PATH
+    when: configserver_version_def == "00000"
+    become: yes
+    become_user: svc.ansible
+    delegate_to: localhost
+    
+  - name: Copy the new Config Server jar file
+    copy:
+      src: "/tmp/{{ configserver_version_def }}_configserver/config-server.jar"
+      dest: "{{ arkcase_base_dir }}/config-server"
+      owner: "{{ arkuser }}"
+      group: "{{ arkuser }}"
+      seuser: system_u
+      serole: object_r
+      setype: tmp_t
+      selevel: s0
+    become_user: "{{ arkuser }}"
+    become: yes
+    register: configserver_deploy
+    
+  - name: Include Restart Role
+    include_role:
+      name: RestartService
+    vars:
+      service_name: acm-scc.service_name
+    when: configserver_deploy.changed
