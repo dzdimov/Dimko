@@ -1,206 +1,62 @@
 ---
-# tasks file for /etc/ansible/GIT/Dimko/roles/Kibana
-    - name: Download and install the publick signing key
-      shell: rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
-
-    - name: Copy the kibana repo
-      copy:
-        src: kibana.repo
-        dest: /etc/yum.repos.d/
-
-    - name: Create the directories
+# tasks file for /etc/ansible/GIT/Dimko/roles/installCarte
+    - name: Transfer and unzip the carte installation files to the remote host
+      unarchive:
+        src:
+        dest: /opt/app/acm/pentaho/
+    
+    - name: Change ownership of all files in data-integration folder
       file:
-        path: /opt/app/kibana/{{item}}
+        path: /opt/app/acm/pentaho/data-integration/
         state: directory
-        mode: 0755
-      with_items:
-      - /cert
-      - /private
-    
-    - name: Copying the certificates 1
-      copy:
-        src: certs/acm-elasticsearch.cert.pem
-        dest: /opt/app/kibana/cert/
-        
-    - name: Copying the key
-      copy:
-        src: certs/acm-elasticsearch.key.pem
-        dest: /opt/app/kibana/private/
-        
-    - name: Copying the certificate 2
-      copy:
-        src: certs/ca-chain.cert.pem
-        dest: /opt/app/kibana/cert/
-
-    - name: Install Kibana
-      yum:
-        name: kibana
-        state: present
- 
-    - name: Copy everything from /usr/share to opt/app/kibana/
-      copy:
-        src: /usr/share/kibana
-        dest: /opt/app/kibana/
-        remote_src: yes
-        directory_mode: yes
-      ignore_errors: true
-             
-    - name: Delete the folder
-      file:
-        path: /usr/share/kibana
-        state: absent
-      
-    - name: Change ownership of opt/kibana
-      file:
-        dest: /opt/app/kibana/
-        owner: kibana
-        group: kibana
-        mode: 0755
         recurse: yes
-
-    - name: Replace kibana program
+        owner: pentaho
+        group: pentaho
+        mode: 755
+        
+    - name: Replace line in carte-config-master-8080.xml file
       replace:
-        path: /etc/init.d/kibana
-        regexp: "program=/usr/share/kibana/bin/kibana"
-        replace: "program=/opt/app/kibana/bin/kibana"
-        backup: yes      
-
-    - name: Copy kibana.yml from remote to /etc/kibana
+        path: /opt/app/acm/pentaho/data-integration/pwd/carte-config-master-8080.xml
+        regexp: '<hostname>localhost</hostname>'
+        replace: '<hostname>0.0.0.0</hostname>'
+      
+    - name: Replace line in the kettle.pwd file
+      replace:
+        path: /opt/app/acm/pentaho/data-integration/pwd/kettle.pwd
+        regexp: 'cluster: OBF:1v8w1uh21z7k1ym71z7i1ugo1v9q'
+        replace: 'arkcase-carte: OBF:18da1okw1e3f1iz21j1s1e1v1oi618bk'
+        
+    - name: Add localhost as acm-carte in hosts file
+      lineinfile:
+        path: /etc/hosts
+        line: '127.0.0.1 acm-carte'
+        
+    - name: Add reverse proxy configuration
+      blockinfile:
+        path: '/opt/app/acm/httpd/conf/extra/httpd-ssl.conf'
+        block: |
+          ProxyPass /kettle http://acm-carte:8080/kettle
+          ProxyPassReverse /kettle http://acm-carte:8080/kettle
+          
+          ProxyPass /static http://acm-carte:8080/static
+          ProxyPassReverse /static http://acm-carte:8080/static
+          
+    - name: Restart the httpd service
+      systemd:
+        state: restarted
+        name: apachectl
+        
+    - name: Copy the service file to systemd
       copy:
-        src: kibana.yml
-        dest: /etc/kibana/
-        backup: yes
-
-    - name: Delete Elasticsearch var/lock/subsys
-      file:
-        path: /var/lock/subsys/elasticsearch
-        state: absent
-        directory_mode: yes
+        src: carte.service
+        dest: /usr/lib/systemd/system/carte.service
+        owner: root
+        group: root
+        mode: 664
         
-    - name: Start Elasticsearch if CentOS 6
-      service:
-        name: elasticsearch
-        state: started
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
-        
-    - name: start Elasticsearch if CentOs 7
-      systemd:
-        name: elasticsearch
-        state: started
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-
-    - name: Wait for 90 seconds
-      wait_for: timeout=90
-      delegate_to: localhost
-    
-    - name: Start Kibana on CentOS 6
-      service:
-        name: kibana
-        state: started
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
-    
-    - name: Start Kibana on CentOS 7
-      systemd:
-        name: kibana
-        state: started
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-        
-    - name: Wait for 60 seconds
-      wait_for: timeout=60
-      delegate_to: localhost
+    - name: Execute enable service
+      shell: "sudo systemctl enable /usr/lib/systemd/system/carte.service"
       
-    - name: Execute CURL 1
-      uri:
-        url: http://localhost:9200/.kibana/_settings?pretty
-        method: PUT
-        # user: elastic
-        # pass: elasticsearch
-        headers:
-          Content-Type: "application/json"
-        src: file.json
-    
-    - name: Execute CURL 2
-      uri:
-        url: http://localhost:9200/.kibana-6?pretty
-        method: PUT
-        # user: elastic
-        # pass: elasticpass
-        headers:
-          Content-Type: "application/json"
-        src: file1.json
- 
-    - name: Curl 3
-      uri:
-        url: http://localhost:9200/_reindex?pretty
-        method: POST
-        # user: elastic
-        # pass: elasticpass
-        headers:
-          Content-Type: "application/json"
-        src: file2.json
-
-    - name: Curl 4
-      uri:
-        url: http://localhost:9200/_aliases?pretty
-        method: POST
-        # user: elastic
-        # pass: elasticpass
-        headers:
-          Content-Type: "application/json"
-        src: file3.json
-                 
-    - name: Curl 5
-      uri:
-        url: http://localhost:9200/logstash-0?pretty
-        method: PUT
-        # user: elastic
-        # pass: elasticpass
-        headers:
-          Content-Type: "application/json"
-        file: file4.json
-             
-    - name: Configure logstast to be the default index pattern
-      uri:
-        url: http://localhost:9200/.kibana/index-pattern/logstash-*
-        method: PUT
-        # user: elastic
-        # pass: elasticpass
-        headers:
-          Content-Type: "application/json"
-        src: file5.json
-
-    - name: Stopping Kibana when CentOS 6
-      service:
-        name: kibana
-        state: stopped
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
-        
-    - name: Stopping Kibana when CentOS 7
+    - name: Execute daemon-reload
       systemd:
-        name: kibana
-        state: stopped
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      
-    - name: Stopping Elasticsearch when CentOS 6
-      service:
-        name: elasticsearch
-        state: stopped
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
-      
-    - name: Stopping Elasticsearch when CentOS 7
-      systemd:
-        name: elasticsearch
-        state: stopped
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-     
-    - name: Adding services to auto start when CentOS 6
-      service:
-        name: kibana
-        enabled: yes
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
-     
-    - name: Adding services to auto start when CentOS 7
-      systemd:
-        name: kibana
-        enabled: yes
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+        daemon_reload: yes
