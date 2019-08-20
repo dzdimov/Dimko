@@ -1,0 +1,3 @@
+---
+# defaults file for /etc/ansible/GIT/Dimko/roles/Kibana
+CARTE_PACKAGE: "INSERT_PACKAGE_HERE"
